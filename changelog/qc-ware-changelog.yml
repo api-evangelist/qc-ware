@@ -1,0 +1,65 @@
+generated: '2026-08-26'
+method: searched
+source: https://www.promethium.qcware.com/blog
+note: >-
+  QC Ware does not publish a dedicated API changelog or release-notes feed. Product changes are announced as
+  dated "Product Updates" posts on the Promethium blog. These are product-level, not API-version-level: none of
+  them carries an API version number, a breaking-change flag, or a migration note. The REST API itself is on a
+  /v0 path prefix with a "v1" payload version field and has published no version history. The most recent
+  Product Updates post found is from 2025-01-27; the cadence was roughly monthly through 2024 and has since
+  lapsed.
+scheme:
+  type: path-prefix + payload version field
+  path_prefix: /v0
+  payload_field: version
+  payload_values: [v1]
+  current_version: v0 (path) / v1 (payload)
+  breaking_change_policy: not published
+  deprecation_headers: not published
+url: https://www.promethium.qcware.com/blog
+format: dated blog posts (HTML), no RSS/Atom or JSON feed discovered
+entries:
+- title: 'January Product Updates: Chemical Properties & SDK Documentation'
+  date: '2025-01-27'
+  url: https://www.promethium.qcware.com/post/january-product-updates
+  breaking: false
+  highlights:
+  - Chemical properties capability
+  - SDK documentation
+- title: 'November Product Updates: Promethium''s API is Now Live'
+  date: '2023-11-27'
+  url: https://www.promethium.qcware.com/post/november-product-updates-promethiums-api-is-now-live
+  breaking: false
+  highlights:
+  - REST API launched, callable from any language over HTTPS
+  - Python SDK released
+  - API access included for all new and existing customers at no additional cost
+- title: 'July Product Updates: Faster Conformer Searches, Protein-Ligand Preparation, F-SAPT Enhancements, & More'
+  date: '2024-07-31'
+  url: https://www.promethium.qcware.com/post/july-product-updates
+  breaking: false
+  highlights:
+  - Faster conformer searches
+  - Protein-ligand preparation
+  - F-SAPT enhancements
+- title: 'May Product Updates: Expanded Analytical Hessian Capabilities, Dark Mode, Self-Guided Tutorials, and More'
+  date: '2024-05-30'
+  url: https://www.promethium.qcware.com/post/may-product-updates
+  breaking: false
+  highlights:
+  - Expanded analytical Hessian capabilities
+  - Dark mode
+  - Self-guided tutorials
+- title: 'April Product Updates: Announcing F-SAPT, a Workflow for Understanding Molecular Interactions'
+  date: '2024-04-15'
+  url: https://www.promethium.qcware.com/post/april-product-updates-announcing-f-sapt-a-workflow-for-understanding-molecular-interactions
+  breaking: false
+  highlights:
+  - F-SAPT workflow for fragment-level interaction energy decomposition
+- title: 'March Product Updates: New UX Upgrades in Promethium!'
+  date: '2024-03-27'
+  url: https://www.promethium.qcware.com/post/march-product-updates
+  breaking: false
+  highlights:
+  - Console UX upgrades
+entry_count: 6

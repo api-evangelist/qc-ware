@@ -1,0 +1,63 @@
+generated: '2026-08-26'
+method: searched
+source: >-
+  registry.npmjs.org, pypi.org/pypi/<pkg>/json, github.com/qcware, and
+  https://github.com/qcware/promethium-examples (SDK/CLI install instructions)
+note: >-
+  QC Ware's CURRENT first-party SDK — promethium_sdk, which also installs the `promethium`/`pm` CLI — is NOT
+  published to public PyPI. Its own README sends users to the API tab of the authenticated Promethium settings
+  page (https://app.promethium.qcware.com/settings/) for the pip install command, which indicates a private or
+  token-gated index. `pypi.org/pypi/promethium-sdk/json` and `/promethium_sdk/json` both return 404, and the
+  unrelated `promethium` package on PyPI is a third-party statistics library by another author (do not confuse
+  them). The only first-party QC Ware packages on a public registry belong to the LEGACY Forge product and were
+  last released in 2022. No npm, Maven, NuGet, RubyGems, Packagist or crates.io packages were found.
+packages:
+- name: promethium_sdk
+  language: python
+  registry: private
+  url: https://app.promethium.qcware.com/settings/
+  version: null
+  published: null
+  official: true
+  status: current
+  note: >-
+    Checked pypi.org for `promethium-sdk` (404) and `promethium_sdk` (404); not on public PyPI, so no registry
+    metadata endpoint answers and neither version nor release date can be read. Install command is published
+    only behind the authenticated Promethium settings page. Import path is `promethium_sdk.client.PromethiumClient`.
+    Installing it also provides the `promethium` (alias `pm`) command-line tool — see cli/qc-ware-cli.yml.
+  wraps: Promethium REST API (https://api.promethium.qcware.com)
+- name: qcware
+  language: python
+  registry: pypi
+  url: https://pypi.org/project/qcware/
+  version: 7.4.3
+  published: '2022-05-11'
+  official: true
+  status: legacy
+  repository: https://github.com/qcware/platform_client_library_python
+  docs: https://qcware.readthedocs.io/en/stable
+  note: >-
+    "The python client for QC Ware's Forge SaaS quantum computing product." Forge is QC Ware's earlier quantum
+    computing cloud service; forge.qcware.com no longer resolves for our probe. Last release 2022-05-11 — over
+    four years stale, and it does not wrap the current Promethium REST API.
+- name: qcware-transpile
+  language: python
+  registry: pypi
+  url: https://pypi.org/project/qcware-transpile/
+  version: 0.1.1a21
+  published: '2022-04-25'
+  official: true
+  status: legacy
+  repository: https://github.com/qcware/qcware_transpile
+  note: >-
+    "A quantum circuit transpilation framework." Alpha versioning, last release 2022-04-25. Forge-era.
+counts:
+  total: 3
+  official: 3
+  current: 1
+  on_public_registry: 2
+  with_version: 2
+sdk_currency_signal: >-
+  Every QC Ware package resolvable on a public registry predates the Promethium REST API launch (2023-11-27) by
+  at least eighteen months. The SDK that DOES wrap the current API is undiscoverable without an account, so no
+  release cadence can be measured for it from outside.

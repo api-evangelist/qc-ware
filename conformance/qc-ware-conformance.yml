@@ -1,0 +1,118 @@
+generated: '2026-08-26'
+method: derived
+source: openapi/qc-ware-promethium-openapi.yml
+also_source: https://www.promethium.qcware.com/ (published certification badge)
+note: >-
+  Cross-cutting standards conformance for the Promethium REST API. Every `conforms` value below is backed by a
+  location in the contract or a page on QC Ware's own site; nothing is asserted from category expectation.
+standards:
+- id: openapi
+  name: OpenAPI Specification
+  conforms: true
+  version: 3.0.2
+  evidence: >-
+    openapi/qc-ware-promethium-openapi.yml declares `openapi: 3.0.2` with 9 paths / 13 operations, all with
+    unique operationIds, tags (Workflows, Files) and summaries. Served publicly and anonymously at
+    https://app.promethium.qcware.com/openapi.json (HTTP 200, application/json, 39,710 bytes).
+- id: rest
+  name: HTTP/REST resource semantics
+  conforms: true
+  evidence: >-
+    Resource-oriented paths (/v0/workflows, /v0/files), correct method semantics (GET read, POST create,
+    PATCH partial update, DELETE remove), and correct status usage (201 on create, 204 on stop/delete,
+    302 on download redirect).
+- id: rfc9457
+  name: Problem Details for HTTP APIs
+  conforms: false
+  evidence: >-
+    The only declared error media type is application/json carrying HTTPValidationError. No
+    application/problem+json anywhere in the spec.
+- id: pagination
+  name: Paginated collections
+  conforms: true
+  evidence: >-
+    list_workflows and list_files take page/size query parameters and return a Page_* envelope with
+    items/total/page/size.
+- id: idempotency
+  name: Idempotent write requests
+  conforms: false
+  evidence: >-
+    No Idempotency-Key header or equivalent on create_workflow, create_file or create_file_batch.
+- id: oauth2
+  name: OAuth 2.0
+  conforms: false
+  evidence: >-
+    No oauth2 securityScheme, no /.well-known/oauth-authorization-server (404 on api.promethium.qcware.com),
+    no published authorization or token endpoint. The API is API-key only. An Auth0 tenant
+    (qcs.us.auth0.com) fronts the human console, but is not offered as an API authorization surface.
+- id: oidc
+  name: OpenID Connect
+  conforms: false
+  evidence: /.well-known/openid-configuration returned 404 on every QC Ware host probed.
+- id: asyncapi
+  name: AsyncAPI
+  conforms: false
+  evidence: >-
+    No event, streaming or webhook surface exists. The API's own asynchronous workflow model is
+    submit-and-poll — the client polls get_workflow. No callback URL, no webhook registration operation, and
+    no AsyncAPI document was found on any host or in the GitHub org. Not applicable rather than a shortfall.
+- id: json-schema
+  name: JSON Schema
+  conforms: true
+  evidence: >-
+    18 components.schemas with typed properties, enums (UnifiedWorkflowKind, UnifiedWorkflowStatus, GpuType,
+    AuthSource, WorkflowOrderField, OrderDir), required arrays and uuid4/date-time formats.
+domain_standards:
+  note: >-
+    REWARD-ONLY check. Computational chemistry has real interchange formats, and Promethium's contract does
+    touch them — but only as opaque base64 payloads, which is recorded honestly below rather than claimed as
+    conformance to a machine-readable domain standard.
+  entries:
+  - id: xyz-molecular-geometry
+    name: XYZ Cartesian coordinate format
+    conforms: partial
+    evidence: >-
+      CreateWorkflowRequest.parameters carries a `molecule` object whose published examples use
+      `{"base64data": "<base64 XYZ>", "filetype": "xyz"}`. Source:
+      https://github.com/qcware/promethium-examples/blob/main/examples/Getting_Started/01_Single_Point_Calculation/json/config.json
+      The format is named in a `filetype` field but the payload is an opaque base64 blob and the spec types
+      `parameters` as a bare `type: object` with no sub-schema, so the domain format is used but not declared
+      in the contract.
+  - id: pdb-sdf
+    name: PDB / SDF molecular structure files
+    conforms: partial
+    evidence: >-
+      The provider's public examples repository carries .pdb and .sdf inputs (t4lysozyme_uvt_protein.pdb,
+      t4lysozyme_uvt_ligands.sdf, 6c1r_efd.pdb) uploaded through the /v0/files surface, which types file
+      bodies as `base64body: string`. Again real domain formats, carried opaquely.
+  - id: qcschema
+    name: MolSSI QCSchema
+    conforms: false
+    evidence: >-
+      No QCSchema URN, $schema reference, or QCSchema-shaped object appears anywhere in the contract or the
+      public examples. Probed for and not found.
+compliance:
+  certifications:
+  - name: ISO/IEC 27001
+    status: certified
+    auditor: A-LIGN
+    evidence: >-
+      An A-LIGN ISO 27001 certification badge is published on the Promethium homepage
+      (https://www.promethium.qcware.com/), image asset A_LIGN_badge_ISO_27001, alt text "ISO Compliance
+      Badge", linking to https://www.a-lign.com/.
+    certificate_url: null
+    note: The badge is published; the certificate itself is not linked or downloadable.
+  - name: SOC 2
+    status: not published
+    evidence: No SOC 2 claim was found on qcware.com or promethium.qcware.com.
+  trust_center:
+    published: false
+    evidence: >-
+      trust.qcware.com did not resolve (curl exit 000, no HTTP status); https://www.qcware.com/security
+      returned 404.
+  vulnerability_disclosure:
+    published: false
+    evidence: >-
+      /.well-known/security.txt returned 404 on www.qcware.com, www.promethium.qcware.com and
+      api.promethium.qcware.com, and 403 (SPA shell) on app.promethium.qcware.com. No bug-bounty program or
+      disclosure page was found. Because there is no disclosure surface, no `Security` pointer is emitted.

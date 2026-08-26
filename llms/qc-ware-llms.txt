@@ -1,0 +1,100 @@
+# QC Ware — Promethium
+
+> QC Ware is a quantum and GPU-accelerated computational chemistry company in Palo Alto, California.
+> Its commercial product, Promethium, runs ab initio DFT and TD-DFT quantum chemistry calculations on
+> NVIDIA A100/V100 GPUs for systems up to roughly 2,000 atoms, and exposes a public REST API for
+> submitting and managing those calculations.
+
+Generated: 2026-08-26
+Method: generated
+Source: apis.yml + repo artifacts (QC Ware serves no /llms.txt — probed on www.qcware.com,
+www.promethium.qcware.com and api.promethium.qcware.com, all 404; app.promethium.qcware.com returned 403)
+
+## API
+
+- [Promethium REST API](https://api.promethium.qcware.com): 13 operations over two resources, Workflows
+  and Files, under a `/v0` path prefix. Submit a quantum chemistry workflow, poll it to completion, then
+  read numeric results or download the full result archive.
+- [OpenAPI 3.0.2 specification](https://app.promethium.qcware.com/openapi.json): served publicly and
+  anonymously; 9 paths, 13 operations, 18 schemas.
+- [API reference](https://app.promethium.qcware.com/docs/api): the hosted reference; returns 403 to
+  anonymous clients, so it is effectively account-gated.
+
+## Authentication
+
+- Single scheme: a per-account API key sent in an `X-API-KEY` request header, required on every operation.
+- Keys are created on the API tab of the Promethium settings page at https://app.promethium.qcware.com/settings/.
+- No OAuth, no OpenID Connect, no scopes. The published `AuthSource` enum names `api_key` (programmatic) and
+  `auth0` (the human console sign-in, which is not an API authorization surface).
+
+## Core operations
+
+Workflows:
+- `list_workflows` — GET /v0/workflows. NOTE: `kind` is a REQUIRED query parameter; there is no list-all call.
+- `create_workflow` — POST /v0/workflows. Billable: starts metered GPU compute.
+- `get_workflow` — GET /v0/workflows/{workflow_id}. Poll this for status.
+- `stop_workflow` — POST /v0/workflows/{workflow_id}/stop.
+- `get_workflow_results_numeric` — GET /v0/workflows/{workflow_id}/results.
+- `download_results` — GET /v0/workflows/{workflow_id}/results/download (302 redirect).
+
+Files:
+- `list_files`, `create_file`, `create_file_batch`, `get_file`, `update_file`, `delete_file`, `download_file`.
+- File bodies are base64 strings; the tree is self-referential via `parent_id`.
+
+## Workflow kinds
+
+`SinglePointCalculation`, `GeometryOptimization`, `ConformerSearch`, `TorsionScan`,
+`InteractionEnergyCalculation`, `ReactionPathOptimization`, `TransitionStateOptimization`,
+`TransitionStateOptimizationFromEndpoints`.
+
+## Execution model
+
+Submit-and-poll. `create_workflow` returns 201 with an id and a status; poll `get_workflow` until the status
+reaches a terminal value (`SUCCEEDED`, `COMPLETED`, `CANCELED`, `FAILED`, `TERMINATED`, `TIMED_OUT`), then
+fetch results. There are no webhooks, no callbacks and no event stream — polling is the only completion signal.
+
+## Things an agent must know before calling this API
+
+- No idempotency. There is no `Idempotency-Key` header. Retrying `create_workflow` starts a SECOND billed
+  workflow. Never retry a submission blindly; list or get first.
+- No dry run. There is no validate-only mode. Any submission that passes validation begins billing GPU seconds.
+- Reversal exists but has no published window. `stop_workflow` stops a workflow, but QC Ware does not state
+  how long a workflow stays stoppable or whether elapsed compute is still charged. Do not assume a refund.
+- `delete_file` is irreversible. There is no restore, undelete or recovery window in the published contract.
+- `create_workflow.parameters` is untyped. The OpenAPI declares it as a bare `type: object`. Its real shape
+  differs per workflow kind and is only discoverable from QC Ware's examples repository — see Examples below.
+- Only one error response is declared, 422 with a FastAPI `{"detail":[{"loc","msg","type"}]}` envelope. 401,
+  404, 429 and 5xx are undeclared. Do not code against an assumed shape for them.
+- No rate limits are published, and no rate-limit response headers are declared. The real constraint is
+  commercial: GPU compute hours metered per second.
+
+## Resources
+
+- [Examples repository](https://github.com/qcware/promethium-examples) — cURL, httpx and SDK examples for
+  each workflow kind, plus real JSON request configs. Apache-2.0.
+- [Python SDK and CLI](https://app.promethium.qcware.com/settings/) — `promethium_sdk` provides
+  `PromethiumClient` and the `promethium` / `pm` CLI. NOT on public PyPI; the install command is published
+  only behind the authenticated settings page.
+- [GitHub organization](https://github.com/qcware)
+- [Status page](https://promethium-status.qcware.com/)
+- [Pricing](https://www.promethium.qcware.com/pricing-details) — GPU compute-hour metering, billed per second.
+  API access is included at no additional cost.
+- [Blog / product updates](https://www.promethium.qcware.com/blog)
+- [Privacy policy](https://www.qcware.com/privacy/privacy-policy)
+- [Contact](https://www.promethium.qcware.com/contact) — promethium@qcware.com
+
+## Not available
+
+- No MCP server (hosted or stdio). Probed; none exists.
+- No A2A agent card at either well-known path on any host.
+- No GraphQL, gRPC/protobuf or SOAP/WSDL surface.
+- No AsyncAPI, webhooks or event stream.
+- No `/.well-known/*` documents on any host, including security.txt.
+- No sandbox or test-mode credentials.
+- No public self-serve signup or free tier.
+
+## Legacy
+
+- Forge — QC Ware's earlier quantum computing cloud service. Python client `qcware` on PyPI, last release
+  2022-05-11; docs at https://qcware.readthedocs.io/. `forge.qcware.com` did not resolve when probed.
+  It does not wrap the Promethium API.

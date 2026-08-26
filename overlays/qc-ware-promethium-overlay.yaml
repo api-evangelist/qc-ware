@@ -1,0 +1,68 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enrichment overlay — QC Ware Promethium REST API
+  version: 1.0.0
+extends: ../openapi/qc-ware-promethium-openapi.yml
+x-generated: '2026-08-26'
+x-method: generated
+x-source: openapi/qc-ware-promethium-openapi.yml + https://github.com/qcware/promethium-examples
+x-note: Captures API Evangelist enrichment only. The upstream spec is never mutated; the scorer parses the original.
+actions:
+- target: $.info
+  description: Name the vendor, product and license posture the published spec omits.
+  update:
+    x-provider: QC Ware
+    x-product: Promethium
+    contact:
+      name: Promethium Support
+      email: promethium@qcware.com
+      url: https://www.promethium.qcware.com/contact
+    x-documentation: https://github.com/qcware/promethium-examples
+- target: $
+  description: Record the API-key scheme QC Ware documents in its own cURL example but does not declare as a securityScheme.
+    The upstream spec models auth as a required X-API-KEY header parameter on every operation.
+  update:
+    security:
+    - PromethiumApiKey: []
+- target: $.components
+  description: Declare the apiKey securityScheme the upstream FastAPI spec omits.
+  update:
+    securitySchemes:
+      PromethiumApiKey:
+        type: apiKey
+        in: header
+        name: X-API-KEY
+        description: Per-account Promethium API key, created on the API tab of https://app.promethium.qcware.com/settings/.
+- target: $.paths.*.*
+  description: Attach a 401 the upstream contract never declares even though X-API-KEY is required on every operation. Enhancement
+    only — the upstream shape is unverified, so no schema is asserted.
+  update:
+    x-undeclared-responses:
+    - '401'
+    - '403'
+    - '404'
+    - '429'
+    - 5xx
+- target: $.paths['/v0/workflows'].post
+  description: Flag the billing consequence and the reversal path an agent needs before calling this operation.
+  update:
+    x-consequence: billable-compute
+    x-reversal-operation: stop_workflow
+    x-reversal-window: null
+    x-idempotency: none — a retried POST starts a second billed workflow
+- target: $.paths['/v0/files/{file_id}'].delete
+  description: Flag that deletion has no published restore path.
+  update:
+    x-consequence: destructive
+    x-reversal-operation: null
+    x-reversal-window: null
+- target: $.paths['/v0/workflows'].get
+  description: Note that the kind filter is required, so there is no list-all call.
+  update:
+    x-listing-note: kind is a REQUIRED query parameter; enumerate UnifiedWorkflowKind to list every workflow.
+- target: $.paths['/v0/workflows'].post.requestBody.content['application/json'].schema
+  description: Point at the provider examples that define the otherwise-untyped parameters object.
+  update:
+    x-parameters-reference: https://github.com/qcware/promethium-examples/tree/main/examples
+    x-parameters-note: CreateWorkflowRequest.parameters is typed as a bare object; its real shape differs per UnifiedWorkflowKind
+      and is only discoverable from the examples repository.

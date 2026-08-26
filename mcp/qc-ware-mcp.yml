@@ -1,0 +1,104 @@
+generated: '2026-08-26'
+method: derived
+source: openapi/qc-ware-promethium-openapi.yml
+status: candidate
+note: >-
+  QC Ware ships NO MCP server. Searched for an official hosted or stdio server and found none: no MCP mention
+  in the qcware GitHub org, no npm or PyPI package, nothing in QC Ware's own documentation or product-update
+  posts, and no third-party listing of a Promethium MCP server. Probed mcp.qcware.com/mcp and
+  mcp.promethium.qcware.com/mcp (both failed to resolve, curl exit 000 / no HTTP status) and
+  api.promethium.qcware.com/mcp (404). The tool list below is a DERIVED CANDIDATE mapped one-to-one from the
+  published OpenAPI operations — it describes what an MCP server for this API would expose, not something QC
+  Ware serves. No endpoint is invented.
+deployment:
+  mode: none
+  endpoint: null
+  install: null
+  package: null
+  auth: api-key
+  auth_note: >-
+    Any future server would carry the Promethium X-API-KEY header; the API publishes no OAuth surface.
+  verified: probed
+probes:
+- url: https://mcp.qcware.com/mcp
+  method: POST tools/list
+  status: <no response>
+  note: host did not resolve
+- url: https://mcp.promethium.qcware.com/mcp
+  method: POST tools/list
+  status: <no response>
+  note: host did not resolve
+- url: https://api.promethium.qcware.com/mcp
+  method: POST tools/list
+  status: 404
+candidate_tools:
+- name: list_workflows
+  rest: list_workflows
+  method: GET
+  path: /v0/workflows
+  description: List quantum chemistry workflows of a given kind, with search, status and date filters.
+  required_inputs: [kind]
+  note: kind is a REQUIRED filter — there is no list-all call.
+- name: create_workflow
+  rest: create_workflow
+  method: POST
+  path: /v0/workflows
+  description: Submit a quantum chemistry workflow (single point, geometry optimization, conformer search, torsion scan, interaction energy, reaction path, transition state).
+  required_inputs: [name, kind, parameters, resources]
+  consequence: billable — starts metered GPU compute
+  reversal: stop_workflow
+- name: get_workflow
+  rest: get_workflow
+  method: GET
+  path: /v0/workflows/{workflow_id}
+  description: Retrieve a workflow and its current status.
+- name: stop_workflow
+  rest: stop_workflow
+  method: POST
+  path: /v0/workflows/{workflow_id}/stop
+  description: Stop a running workflow.
+- name: get_workflow_results_numeric
+  rest: get_workflow_results_numeric
+  method: GET
+  path: /v0/workflows/{workflow_id}/results
+  description: Retrieve numeric results for a completed workflow.
+- name: download_results
+  rest: download_results
+  method: GET
+  path: /v0/workflows/{workflow_id}/results/download
+  description: Get a redirect to the full result archive for a workflow.
+- name: list_files
+  rest: list_files
+  method: GET
+  path: /v0/files
+- name: create_file
+  rest: create_file
+  method: POST
+  path: /v0/files
+  description: Upload a base64-encoded file or create a directory.
+- name: create_file_batch
+  rest: create_file_batch
+  method: POST
+  path: /v0/files/batch
+- name: get_file
+  rest: get_file
+  method: GET
+  path: /v0/files/{file_id}
+- name: update_file
+  rest: update_file
+  method: PATCH
+  path: /v0/files/{file_id}
+  description: Move a file to a different parent directory (parent_id is the only mutable field).
+- name: delete_file
+  rest: delete_file
+  method: DELETE
+  path: /v0/files/{file_id}
+  consequence: destructive — no restore operation is published
+- name: download_file
+  rest: download_file
+  method: GET
+  path: /v0/files/{file_id}/download
+counts:
+  candidate_tools: 13
+  rest_operations: 13
+  coverage: 1.0

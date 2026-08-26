@@ -1,0 +1,63 @@
+generated: '2026-08-26'
+method: searched
+source: https://github.com/qcware/promethium-examples/blob/main/README.md
+docs: https://app.promethium.qcware.com/settings/
+name: Promethium CLI
+binary: promethium
+alias: pm
+description: >-
+  Command Line Interface (CLI) for Promethium by QC Ware. Installed as part of the Promethium Python SDK
+  (promethium_sdk); the same install provides both the Python client and the CLI.
+install:
+  method: pip
+  command: null
+  note: >-
+    The exact pip install command is published only on the API tab of the authenticated Promethium settings
+    page. The package is not on public PyPI (see packages/qc-ware-packages.yml), so no verbatim install
+    command can be recorded here without fabricating one.
+global_options:
+- flag: -v, --version
+  description: Print version and exit.
+- flag: -k, --api-key TEXT
+  description: Set Promethium API Key.
+- flag: --help
+  description: Show help and exit.
+commands:
+- name: config
+  alias: cfg
+  description: Configure the Promethium CLI.
+  subcommands:
+  - name: credentials
+    description: >-
+      Prompts for the Promethium API key and stores it in a `.promethium.ini` file in the user's home
+      directory. Initializes credentials for both the CLI and the Python client.
+- name: files
+  alias: fs
+  description: Manage your files.
+  backs: /v0/files operations (list_files, create_file, get_file, update_file, delete_file, download_file)
+- name: preparation
+  alias: prep
+  description: Manage molecule preparation.
+  backs: not represented in the published REST OpenAPI
+- name: projects
+  alias: pr
+  description: Manage Promethium projects.
+  backs: not represented in the published REST OpenAPI
+- name: workflows
+  alias: wf
+  description: Manage Promethium workflows.
+  backs: /v0/workflows operations (list_workflows, create_workflow, get_workflow, stop_workflow, get_workflow_results_numeric)
+  subcommands:
+  - name: new
+    description: Submit a workflow from a JSON config file. Returns the workflow id.
+    example: pm workflows new examples/Getting_Started/01_Single_Point_Calculation/json/config.json
+  - name: status
+    description: Report the status of a workflow by id.
+    example: pm workflows status <workflow_id>
+  - name: results
+    description: Retrieve the results of a completed workflow.
+    example: pm workflows results <workflow_id>
+divergence_note: >-
+  The CLI exposes `preparation` and `projects` command groups that have NO counterpart in the published
+  /v0 OpenAPI. Either those routes are undocumented in the public spec or they are SDK-side composites.
+  Recorded as a divergence rather than assumed.

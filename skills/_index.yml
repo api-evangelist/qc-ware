@@ -1,0 +1,20 @@
+generated: '2026-08-26'
+method: generated
+source: openapi/qc-ware-promethium-openapi.yml + conventions/qc-ware-conventions.yml + https://github.com/qcware/promethium-examples
+note: >-
+  Packaged Agent Skills for the Promethium REST API. Every operationId referenced below is verified present in
+  openapi/qc-ware-promethium-openapi.yml; no operation, parameter or endpoint is invented. QC Ware publishes no
+  skills or AGENTS.md of its own — searched the qcware GitHub org and the Promethium site and found none — so
+  these are generated from the contract plus the provider's public examples.
+api: Promethium REST API
+skills:
+- name: qc-ware-submit-quantum-chemistry-workflow
+  file: qc-ware-submit-quantum-chemistry-workflow.md
+  description: Submit a GPU quantum chemistry calculation and retrieve its results without double-billing.
+  operations: [create_workflow, get_workflow, get_workflow_results_numeric, download_results, stop_workflow]
+- name: qc-ware-manage-promethium-files
+  file: qc-ware-manage-promethium-files.md
+  description: Upload, organize, retrieve and delete files in the Promethium file tree.
+  operations: [list_files, create_file, create_file_batch, get_file, update_file, delete_file, download_file]
+count: 2
+operation_coverage: 12 of 13 published operations (list_workflows is referenced inside the submit skill as the retry-safety check)

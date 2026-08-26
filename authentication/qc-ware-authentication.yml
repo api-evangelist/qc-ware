@@ -1,0 +1,51 @@
+generated: '2026-08-26'
+method: searched
+source: https://github.com/qcware/promethium-examples/blob/main/examples/Getting_Started/01_Single_Point_Calculation/cURL/cURL.md
+docs: https://app.promethium.qcware.com/settings/
+note: >-
+  The published OpenAPI declares NO components.securitySchemes. Authentication is instead modelled as a
+  REQUIRED header parameter named X-API-KEY on every one of the 13 operations — a FastAPI-generated spec
+  shape. The scheme below is therefore recorded from the provider's own cURL example and CLI documentation
+  rather than derived from a securityScheme block, which is why method is `searched` and not `derived`.
+apis:
+- name: Promethium REST API
+  baseURL: https://api.promethium.qcware.com
+  spec: openapi/qc-ware-promethium-openapi.yml
+  schemes:
+  - id: promethium-api-key
+    type: apiKey
+    in: header
+    name: X-API-KEY
+    required: true
+    applied_to: all 13 operations (declared as a required header parameter, not a securityScheme)
+    description: >-
+      A per-account Promethium API key. Created from the API tab of the Promethium settings page at
+      https://app.promethium.qcware.com/settings/. Sent verbatim in the X-API-Key request header.
+      The provider's cURL example uses the placeholder PM_API_KEY.
+    key_prefix: null
+    key_prefix_note: The provider does not publish a documented key prefix.
+    rotation: not documented
+    storage:
+      cli: >-
+        `pm config credentials` prompts for the key and writes it to a `.promethium.ini` file in the
+        user's home directory; the Python SDK (PromethiumClient) reads the same file.
+      env_var: not documented
+  identity_sources:
+    note: >-
+      The spec's AuthSource enum names the two identity paths Promethium itself recognises.
+    values:
+    - id: api_key
+      description: Programmatic access via the X-API-Key header (the REST API and SDK/CLI path).
+    - id: auth0
+      description: >-
+        Interactive console sign-in. QC Ware's web properties link to an Auth0 universal-login tenant at
+        qcs.us.auth0.com. This is the human console path; it is NOT exposed as an OAuth surface for the
+        public REST API, and no OAuth authorization/token endpoint is published.
+  oauth2: false
+  openid_connect: false
+  mutual_tls: false
+  scopes:
+    published: false
+    note: >-
+      No OAuth2 flows and no scope/permission reference are published, so no scopes/ artifact is emitted.
+      Access is all-or-nothing on a single account-scoped API key.

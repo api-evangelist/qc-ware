@@ -1,0 +1,100 @@
+generated: '2026-08-26'
+method: probed
+source: live GET probes of /.well-known/* on every QC Ware / Promethium host
+note: >-
+  Every probed path missed. www.qcware.com, www.promethium.qcware.com and api.promethium.qcware.com return
+  404 on all five well-known paths; app.promethium.qcware.com answers 403 with an SPA HTML shell for every
+  /.well-known/* path (an edge/bot policy on the authenticated console, not a served document). Because no
+  path returned a real document, NO WellKnown or SecurityTxt pointer is emitted in apis.yml — this file
+  records a measured absence, not a presence.
+hosts:
+- host: www.qcware.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+    file: null
+  - path: /.well-known/openid-configuration
+    status: 404
+    file: null
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+    file: null
+  - path: /.well-known/api-catalog
+    status: 404
+    file: null
+  - path: /.well-known/ai-plugin.json
+    status: 404
+    file: null
+- host: api.promethium.qcware.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+    file: null
+  - path: /.well-known/openid-configuration
+    status: 404
+    file: null
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+    file: null
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+    file: null
+  - path: /.well-known/api-catalog
+    status: 404
+    file: null
+  - path: /.well-known/ai-plugin.json
+    status: 404
+    file: null
+- host: app.promethium.qcware.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 403
+    file: null
+    note: 403 HTML shell from the console edge, not a document
+  - path: /.well-known/openid-configuration
+    status: 403
+    file: null
+  - path: /.well-known/oauth-authorization-server
+    status: 403
+    file: null
+  - path: /.well-known/api-catalog
+    status: 403
+    file: null
+  - path: /.well-known/ai-plugin.json
+    status: 403
+    file: null
+- host: www.promethium.qcware.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+    file: null
+  - path: /.well-known/openid-configuration
+    status: 404
+    file: null
+  - path: /.well-known/api-catalog
+    status: 404
+    file: null
+  - path: /.well-known/ai-plugin.json
+    status: 404
+    file: null
+agent_card_probe:
+  note: >-
+    A2A agent card probed on all four hosts at both the canonical and legacy paths. No hit; per the pipeline
+    contract no a2a/ artifact is authored.
+  probes:
+  - url: https://www.qcware.com/.well-known/agent-card.json
+    status: 404
+  - url: https://www.qcware.com/.well-known/agent.json
+    status: 404
+  - url: https://api.promethium.qcware.com/.well-known/agent-card.json
+    status: 404
+  - url: https://api.promethium.qcware.com/.well-known/agent.json
+    status: 404
+  - url: https://app.promethium.qcware.com/.well-known/agent-card.json
+    status: 403
+  - url: https://app.promethium.qcware.com/.well-known/agent.json
+    status: 403
+  - url: https://www.promethium.qcware.com/.well-known/agent-card.json
+    status: 404
+  - url: https://www.promethium.qcware.com/.well-known/agent.json
+    status: 404

@@ -1,0 +1,103 @@
+generated: '2026-08-26'
+method: derived
+source: openapi/qc-ware-promethium-openapi.yml
+note: >-
+  Entity-relationship graph derived from the Promethium OpenAPI's components.schemas $ref links and
+  id-reference fields. Two root entities (Workflow, FileMetadata) plus paged envelopes, request shapes and
+  enumerations. Identifiers are bare uuid4 with no type prefixes — a workflow id and a file id are
+  indistinguishable by inspection, which is a real integration hazard worth recording.
+identifiers:
+  format: uuid4
+  prefixed: false
+  note: >-
+    Workflow.id and FileMetadata.id are both `format: uuid4` with no prefix or namespace. A caller holding a
+    loose uuid cannot tell which resource it addresses.
+entities:
+- name: Workflow
+  schema: Workflow
+  description: A submitted quantum chemistry calculation and its lifecycle state.
+  primary_key: id
+  operations: [list_workflows, create_workflow, get_workflow, stop_workflow, get_workflow_results_numeric, download_results]
+  fields:
+  - {name: version, type: string, enum: [v1], default: v1}
+  - {name: id, type: string, format: uuid4, required: true}
+  - {name: name, type: string, required: true, description: user-defined workflow name}
+  - {name: kind, type: enum, ref: UnifiedWorkflowKind, required: true}
+  - {name: created_at, type: string, format: date-time, required: true}
+  - {name: last_updated_at, type: string, format: date-time, required: true}
+  - {name: started_at, type: string, format: date-time}
+  - {name: stopped_at, type: string, format: date-time}
+  - {name: status, type: enum, ref: UnifiedWorkflowStatus, required: true}
+  - {name: status_reason, required: true}
+  - {name: resources, type: object, ref: ResourceRequest, required: true}
+  - {name: parameters, type: object}
+  - {name: metadata, type: object}
+  relationships:
+  - {type: has_one, target: ResourceRequest, via: resources}
+  - {type: has_one, target: WorkflowNumericResults, via: get_workflow_results_numeric (operation, not an inline field)}
+  - {type: belongs_to, target: UnifiedWorkflowKind, via: kind}
+  - {type: belongs_to, target: UnifiedWorkflowStatus, via: status}
+- name: FileMetadata
+  schema: FileMetadata
+  description: A node in the account's file tree — either a file or a directory.
+  primary_key: id
+  operations: [list_files, create_file, create_file_batch, get_file, update_file, delete_file, download_file]
+  fields:
+  - {name: id, type: string, format: uuid4, required: true}
+  - {name: name, type: string, required: true}
+  - {name: parent_id, type: string, format: uuid4, description: 'id of the parent directory; optional only for the root'}
+  - {name: is_directory, type: boolean, required: true}
+  - {name: created_at, type: string, format: date-time, required: true}
+  - {name: size_bytes_uncompressed, type: integer, default: 0}
+  - {name: sha256_uncompressed, type: string}
+  relationships:
+  - {type: belongs_to, target: FileMetadata, via: parent_id, note: self-referential directory tree; root has no parent_id}
+  - {type: has_many, target: FileMetadata, via: parent_id (inverse), note: 'list_files?parent_id=<id> enumerates children'}
+- name: WorkflowNumericResults
+  schema: WorkflowNumericResults
+  description: Numeric result payload for a completed workflow.
+  relationships:
+  - {type: belongs_to, target: Workflow, via: workflow_id path parameter}
+- name: ResourceRequest
+  schema: ResourceRequest
+  description: The GPU class and count a workflow is submitted against.
+  fields:
+  - {name: gpu_type, type: enum, ref: GpuType, required: true}
+  - {name: gpu_count, type: integer, default: 1}
+  relationships:
+  - {type: belongs_to, target: GpuType, via: gpu_type}
+request_shapes:
+- {name: CreateWorkflowRequest, creates: Workflow, required: [name, kind, parameters, resources]}
+- {name: CreateSimpleFileRequest, creates: FileMetadata, required: [name, base64body], note: is_directory pinned false}
+- {name: CreateDirectoryRequest, creates: FileMetadata, required: [name], note: is_directory pinned true}
+- {name: UpdateFileRequest, updates: FileMetadata, fields: [parent_id], note: the ONLY mutable field is the parent directory}
+envelopes:
+- {name: Page_Workflow_, wraps: Workflow, fields: [items, total, page, size]}
+- {name: Page_FileMetadata_, wraps: FileMetadata, fields: [items, total, page, size]}
+- {name: HTTPValidationError, wraps: ValidationError, fields: [detail]}
+enumerations:
+- name: UnifiedWorkflowKind
+  values: [TorsionScan, ConformerSearch, SinglePointCalculation, GeometryOptimization, InteractionEnergyCalculation, ReactionPathOptimization, TransitionStateOptimization, TransitionStateOptimizationFromEndpoints]
+- name: UnifiedWorkflowStatus
+  values: [SUBMITTED, PENDING, RUNNABLE, STARTING, SUCCEEDED, CANCELED, COMPLETED, FAILED, RUNNING, TERMINATED, TIMED_OUT]
+- name: GpuType
+  values: [a100, v100]
+- name: AuthSource
+  values: [api_key, auth0]
+- name: WorkflowOrderField
+  values: [id, name, kind, created_at, last_updated_at, started_at, stopped_at, status, status_reason]
+- name: OrderDir
+  values: from spec
+untyped_surface:
+  note: >-
+    CreateWorkflowRequest.parameters is declared as a bare `type: object` with no sub-schema. It is the single
+    most important payload in the API — it carries the molecule, basis set, method and convergence settings —
+    and the contract says nothing about its shape. Every workflow kind has a different parameters shape, and
+    none of the eight is described. A consumer must read the examples repository to construct a valid request.
+  affected: [create_workflow]
+  reference_examples: https://github.com/qcware/promethium-examples/tree/main/examples
+counts:
+  schemas: 18
+  entities: 4
+  enumerations: 6
+  relationships: 7

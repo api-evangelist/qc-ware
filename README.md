@@ -64,5 +64,15 @@
 > Full detail: **[Where this data comes from](https://apievangelist.com/about/where-our-data-comes-from)**
 <!-- API-EVANGELIST-PROVENANCE:END -->
 
-QC Ware is a company surfaced via the API Evangelist harvest backlog (source: secondary-market) and added to the network as a stub for full-pipeline profiling.
-- https://www.nasdaqprivatemarket.com/
+QC Ware is a quantum and GPU-accelerated computational chemistry company based in Palo Alto, California.
+Its commercial product is **Promethium**, a cloud-native quantum chemistry platform that runs ab initio DFT
+and TD-DFT calculations on NVIDIA A100/V100 GPUs for systems up to roughly 2,000 atoms. Promethium exposes a
+public REST API for submitting and managing calculation workflows, plus a Python SDK and a `promethium`/`pm`
+command-line tool. QC Ware also ran Forge, an earlier quantum computing cloud service, and hosts the Q2B
+quantum computing conference series.
+
+- Company: https://www.qcware.com/
+- Product: https://www.promethium.qcware.com/
+- API base URL: https://api.promethium.qcware.com
+- OpenAPI 3.0.2: https://app.promethium.qcware.com/openapi.json
+- Examples: https://github.com/qcware/promethium-examples

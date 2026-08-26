@@ -1,0 +1,181 @@
+generated: '2026-08-26'
+method: derived
+source: openapi/qc-ware-promethium-openapi.yml
+also_source: https://github.com/qcware/promethium-examples
+note: >-
+  Cross-cutting runtime semantics for the Promethium REST API, derived from the published OpenAPI and the
+  provider's own public examples repository. QC Ware publishes no prose conventions/guidelines page reachable
+  without an account, so anything not visible in the spec or the examples is recorded as not documented rather
+  than inferred.
+api: Promethium REST API
+base_url: https://api.promethium.qcware.com
+authentication:
+  style: api-key header
+  header: X-API-KEY
+  detail: authentication/qc-ware-authentication.yml
+media_types:
+  request: application/json
+  response: application/json
+  note: >-
+    Two operations (download_results, download_file) respond 302 — the payload is a redirect to a
+    presigned download location rather than an inline body.
+idempotency:
+  supported: false
+  header: null
+  scope: null
+  retention: null
+  note: >-
+    No Idempotency-Key header, no idempotency parameter, and no idempotency guidance appears anywhere in the
+    spec or the public examples. create_workflow is a billed, side-effecting POST with no replay protection: a
+    retried submission starts a second GPU workflow and accrues compute charges a second time. No
+    `Idempotency` pointer is emitted in apis.yml, because there is nothing to point at.
+  agent_risk: high
+pagination:
+  style: page-number
+  applies_to: [list_workflows, list_files]
+  request_params:
+  - name: page
+    minimum: 1
+    required: false
+  - name: size
+    minimum: 1
+    required: false
+  response_envelope:
+    schema: Page_Workflow_ / Page_FileMetadata_
+    fields:
+    - items
+    - total
+    - page
+    - size
+  cursor: false
+  link_header: false
+sorting_and_filtering:
+  applies_to: [list_workflows]
+  sort_params:
+  - name: order_by
+    values_schema: WorkflowOrderField
+    values: [id, name, kind, created_at, last_updated_at, started_at, stopped_at, status, status_reason]
+  - name: order_dir
+    values_schema: OrderDir
+  filter_params:
+  - name: kind
+    required: true
+    note: >-
+      Unusual and load-bearing — `kind` is a REQUIRED query parameter on list_workflows. There is no way to
+      list every workflow across kinds in one call; a client must iterate the eight UnifiedWorkflowKind values.
+  - name: search
+  - name: user_id
+  - name: status
+  - name: started_before
+  - name: started_after
+  - name: stopped_before
+  - name: stopped_after
+  applies_to_files: [parent_id, search]
+field_expansion:
+  supported: false
+sparse_fieldsets:
+  supported: false
+metadata:
+  supported: true
+  field: metadata
+  scope: Workflow
+  note: A free-form metadata field is present on the Workflow object.
+request_id_tracing:
+  supported: false
+  note: No request-id or correlation-id header is declared in the spec.
+versioning:
+  path_prefix: /v0
+  payload_field: version (value "v1")
+  detail: lifecycle/qc-ware-lifecycle.yml
+error_envelope:
+  format: fastapi-validation
+  rfc9457: false
+  media_type: application/json
+  schema: HTTPValidationError
+  shape: '{ "detail": [ { "loc": [...], "msg": "...", "type": "..." } ] }'
+  note: >-
+    422 is the ONLY error response declared on any of the 13 operations. 401/403 (bad or missing API key),
+    404 (unknown workflow or file id), 429 and 5xx are all undeclared even though the API plainly returns some
+    of them. Detail in errors/qc-ware-problem-types.yml.
+rate_limit_signaling:
+  headers: []
+  status_on_exhaustion: null
+  detail: rate-limits/qc-ware-rate-limits.yml
+async_execution:
+  model: submit-and-poll
+  note: >-
+    The core interaction is asynchronous by design. create_workflow returns 201 with a workflow id and a
+    status; the client polls get_workflow until status reaches a terminal value, then calls
+    get_workflow_results_numeric or download_results. There is no webhook, callback URL, or event stream —
+    polling is the only completion signal QC Ware publishes.
+  statuses: [SUBMITTED, PENDING, RUNNABLE, STARTING, RUNNING, SUCCEEDED, COMPLETED, CANCELED, FAILED, TERMINATED, TIMED_OUT]
+  terminal_statuses: [SUCCEEDED, COMPLETED, CANCELED, FAILED, TERMINATED, TIMED_OUT]
+dry_run_mode:
+  supported: false
+  grade: absent
+  note: >-
+    No validate-only / dry-run flag on create_workflow. An agent cannot rehearse a submission; every
+    create_workflow call that passes validation starts billing GPU time.
+reversibility:
+  grade: documented
+  grade_basis: >-
+    A reversal operation exists and is published in the contract, but QC Ware states no window for it — no docs
+    page says how long a workflow remains stoppable or whether a stopped workflow is billed for elapsed compute.
+    Per the pipeline grading rule that is `documented` (0.4), not `verified` (1.0). No window is asserted here,
+    because none is published.
+  write_surfaces:
+  - operation: create_workflow
+    operationId: create_workflow
+    method: POST
+    path: /v0/workflows
+    consequence: billable — starts a GPU workflow metered per compute second
+    reversal:
+      operation: stop_workflow
+      operationId: stop_workflow
+      method: POST
+      path: /v0/workflows/{workflow_id}/stop
+      effect: >-
+        Stops a workflow. The status enum contains CANCELED and TERMINATED, which are the observable results.
+      window: null
+      window_source: null
+      window_note: >-
+        Not stated by the provider. Structurally a workflow can only be stopped before it reaches a terminal
+        status, but QC Ware does not publish that as a rule and does not publish whether compute already
+        consumed is charged. Do not assume a refund.
+      billing_reversal: not documented
+  - operation: create_file
+    operationId: create_file
+    method: POST
+    path: /v0/files
+    consequence: stores a file in the account's file tree
+    reversal:
+      operation: delete_file
+      operationId: delete_file
+      method: DELETE
+      path: /v0/files/{file_id}
+      effect: Deletes the file.
+      window: null
+      window_note: >-
+        delete_file is itself irreversible in the published contract — there is no restore, undelete, trash, or
+        recovery-window operation. An agent deleting a file has no documented way back.
+  - operation: create_file_batch
+    operationId: create_file_batch
+    method: POST
+    path: /v0/files/batch
+    consequence: stores multiple files
+    reversal:
+      operation: delete_file
+      note: per-file only; there is no batch delete and no batch rollback
+  - operation: update_file
+    operationId: update_file
+    method: PATCH
+    path: /v0/files/{file_id}
+    consequence: moves a file to a different parent directory
+    reversal:
+      operation: update_file
+      effect: A second PATCH restores the previous parent_id, if the caller recorded it first.
+      window: unbounded
+      note: >-
+        Self-inverse but not transactional — the API returns no prior value, so the caller must have captured
+        parent_id before the move.
+  read_only: false

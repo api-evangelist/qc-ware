@@ -1,23 +1,120 @@
 aid: qc-ware
 name: QC Ware
-description: 'QC Ware is a company surfaced via the API Evangelist harvest backlog (source: secondary-market)
-  and added to the network as a stub for full-pipeline profiling.'
+description: QC Ware is a quantum and GPU-accelerated computational chemistry company based in Palo Alto, California.
+  Its commercial product is Promethium, a cloud-native quantum chemistry platform that runs ab initio DFT and TD-DFT
+  calculations on NVIDIA A100/V100 GPUs for systems up to roughly 2,000 atoms, used by pharmaceutical and materials-science
+  discovery teams. Promethium exposes a public REST API at api.promethium.qcware.com covering workflow submission
+  (single point, geometry optimization, conformer search, torsion scan, interaction energy / F-SAPT, reaction path
+  and transition state optimization) and a file/project store, plus a Python SDK and a `promethium`/`pm` command-line
+  tool. QC Ware also ran Forge, an earlier quantum computing cloud service with a Python client library, and hosts
+  the Q2B quantum computing conference series.
+image: https://cdn.prod.website-files.com/6422991955e15300c0604528/642fbef90d1ede08ed7eee51_openg.avif
 url: https://raw.githubusercontent.com/api-evangelist/qc-ware/refs/heads/main/apis.yml
 x-type: company
 x-source: harvest:secondary-market
-x-tier: stub
-x-tier-reason: harvest
 specificationVersion: '0.20'
 created: '2026-08-26'
 modified: '2026-08-26'
 tags:
 - Company
-apis: []
+- Quantum Computing
+- Computational Chemistry
+- Quantum Chemistry
+- Drug Discovery
+- Materials Science
+- Scientific Computing
+- GPU Computing
+- Life Sciences
+- Simulation
+apis:
+- aid: qc-ware-promethium-rest-api
+  name: Promethium REST API
+  description: The Promethium REST API submits and manages GPU-accelerated quantum chemistry workflows and the files
+    they consume and produce. Thirteen operations across two resources — Workflows (list, create, get, stop, numeric
+    results, results download) and Files (list, create, batch create, get, update, delete, download) — served from
+    https://api.promethium.qcware.com under a /v0 path prefix, with a "v1" payload version field. Authentication
+    is a per-account API key sent in an X-API-Key request header. Workflow kinds are an enumerated set covering
+    SinglePointCalculation, GeometryOptimization, ConformerSearch, TorsionScan, InteractionEnergyCalculation, ReactionPathOptimization,
+    TransitionStateOptimization and TransitionStateOptimizationFromEndpoints, each requesting an a100 or v100 GPU
+    resource class.
+  humanURL: https://app.promethium.qcware.com/docs/api
+  baseURL: https://api.promethium.qcware.com
+  tags:
+  - Quantum Chemistry
+  - Workflows
+  - Files
+  - Scientific Computing
+  properties:
+  - type: OpenAPI
+    url: openapi/qc-ware-promethium-openapi.yml
+  - type: Overlay
+    url: overlays/qc-ware-promethium-overlay.yaml
+  - type: Examples
+    url: examples/
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
 - FN: APIs.json
   email: info@apis.io
 common:
+- type: DomainSecurity
+  url: security/qc-ware-domain-security.yml
 - type: Website
-  url: https://www.nasdaqprivatemarket.com/
+  url: https://www.qcware.com/
+- type: DeveloperPortal
+  url: https://app.promethium.qcware.com/
+- type: Documentation
+  url: https://github.com/qcware/promethium-examples
+- type: APIReference
+  url: https://app.promethium.qcware.com/docs/api
+- type: GettingStarted
+  url: https://github.com/qcware/promethium-examples#getting-started-with-the-promethium-api--software-development-kit-sdk
+- type: GitHubOrganization
+  url: https://github.com/qcware
+- type: Blog
+  url: https://www.promethium.qcware.com/blog
+- type: Support
+  url: https://www.promethium.qcware.com/contact
+- type: Pricing
+  url: https://www.promethium.qcware.com/pricing-details
+- type: SignUp
+  url: https://app.promethium.qcware.com/
+- type: PrivacyPolicy
+  url: https://www.qcware.com/privacy/privacy-policy
+- type: StatusPage
+  url: https://promethium-status.qcware.com/
+- type: Packages
+  url: packages/qc-ware-packages.yml
+- type: SDKs
+  url: packages/qc-ware-packages.yml
+- type: CLI
+  url: cli/qc-ware-cli.yml
+- type: Authentication
+  url: authentication/qc-ware-authentication.yml
+- type: Conventions
+  url: conventions/qc-ware-conventions.yml
+- type: Lifecycle
+  url: lifecycle/qc-ware-lifecycle.yml
+- type: ChangeLog
+  url: changelog/qc-ware-changelog.yml
+- type: Conformance
+  url: conformance/qc-ware-conformance.yml
+- type: Compliance
+  url: conformance/qc-ware-conformance.yml
+- type: Plans
+  url: plans/qc-ware-plans-pricing.yml
+- type: RateLimits
+  url: rate-limits/qc-ware-rate-limits.yml
+- type: LLMsTxt
+  url: llms/qc-ware-llms.txt
+- type: AgentSkill
+  url: skills/_index.yml
+- type: DataModel
+  url: data-model/qc-ware-data-model.yml
+- type: ErrorCatalog
+  url: errors/qc-ware-problem-types.yml
+x-enrichment:
+  date: '2026-08-26'
+  status: enriched
+  artifacts_added: 25
+  pass: local-v1

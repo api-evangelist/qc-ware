@@ -1,0 +1,53 @@
+generated: '2026-08-26'
+method: searched
+source: >-
+  https://promethium-status.qcware.com/, https://www.promethium.qcware.com/blog,
+  openapi/qc-ware-promethium-openapi.yml
+versioning:
+  scheme: path-prefix
+  current: /v0
+  payload_version_field: version
+  payload_version_values: [v1]
+  note: >-
+    The API path prefix (/v0) and the request/response `version` field (v1) disagree with each other and QC Ware
+    publishes no reconciliation of the two. No dated version history, no version negotiation header, and no
+    stated support window for /v0.
+  published_policy: false
+deprecation:
+  policy_published: false
+  sunset_header: false
+  deprecation_header: false
+  rfc8594: false
+  deprecated_operations: []
+  note: >-
+    No deprecation policy page was found on qcware.com or promethium.qcware.com, no operation in the spec
+    carries `deprecated: true`, and no Sunset/Deprecation response headers are declared. No `Deprecation`
+    pointer is emitted in apis.yml, because there is no deprecation policy to point at.
+status_page:
+  published: true
+  url: https://promethium-status.qcware.com/
+  http_status: 200
+  scope: Promethium platform
+  note: >-
+    A dedicated status host, linked from the Promethium site footer as "System Status". No public
+    machine-readable summary endpoint (api/v2/summary.json / RSS) was discovered on it.
+sla:
+  published: false
+  note: No public SLA, uptime commitment, or support-response target was found.
+support:
+  contact: https://www.promethium.qcware.com/contact
+  email: promethium@qcware.com
+  source: https://github.com/qcware/promethium-examples/blob/main/README.md
+maturity:
+  api_launched: '2023-11-27'
+  launch_announcement: https://www.promethium.qcware.com/post/november-product-updates-promethiums-api-is-now-live
+  stage: generally available to paying customers
+  legacy_products:
+  - name: Forge
+    description: >-
+      QC Ware's earlier quantum computing cloud service, with a Python client library (`qcware` on PyPI, last
+      release 2022-05-11) and docs at qcware.readthedocs.io. forge.qcware.com did not resolve during this pass
+      (curl exit 000, no HTTP status). Recorded as effectively retired; QC Ware publishes no sunset notice.
+    probe:
+      url: https://forge.qcware.com/
+      status: <no response>

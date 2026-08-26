@@ -1,0 +1,26 @@
+generated: '2026-08-26'
+method: searched
+source: https://github.com/qcware/promethium-examples/tree/main/examples/Getting_Started
+license: Apache-2.0 (the source repository's license)
+note: >-
+  Real create_workflow request bodies, saved VERBATIM from QC Ware's own public examples repository. These
+  matter more than usual for this API: the published OpenAPI types CreateWorkflowRequest.parameters as a bare
+  `type: object` with no sub-schema, so these files are the only machine-readable description of what a valid
+  Promethium workflow submission looks like. Each `molecule.base64data` value is a base64-encoded XYZ geometry
+  as published by QC Ware.
+api: Promethium REST API
+operation: create_workflow (POST /v0/workflows)
+examples:
+- file: qc-ware-single-point-calculation-request.json
+  kind: SinglePointCalculation
+  description: Single point energy of nirmatrelvir at wb97m-v/def2-tzvp on one a100 GPU.
+  source: https://github.com/qcware/promethium-examples/blob/main/examples/Getting_Started/01_Single_Point_Calculation/json/config.json
+- file: qc-ware-geometry-optimization-request.json
+  kind: GeometryOptimization
+  description: Geometry optimization workflow request.
+  source: https://github.com/qcware/promethium-examples/blob/main/examples/Getting_Started/02_Geometry_Optimization/json/config.json
+- file: qc-ware-conformer-search-request.json
+  kind: ConformerSearch
+  description: Conformer search workflow request.
+  source: https://github.com/qcware/promethium-examples/blob/main/examples/Getting_Started/03_Conformer_Search/json/config.json
+count: 3

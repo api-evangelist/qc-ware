@@ -1,0 +1,77 @@
+generated: '2026-08-26'
+method: derived
+source: openapi/qc-ware-promethium-openapi.yml
+note: >-
+  Derived from the 4xx/5xx responses the Promethium OpenAPI actually declares. That set is a single entry:
+  every one of the 13 operations declares exactly one error response, 422 Validation Error, carrying
+  HTTPValidationError. This is the FastAPI default and it is the whole published error surface. The API
+  certainly returns other statuses in practice — an absent or wrong X-API-KEY cannot produce a 422 — but QC
+  Ware does not declare them, and the hosted API reference at https://app.promethium.qcware.com/docs/api
+  returns 403 anonymously so no docs error reference could be read to enrich this. Undeclared statuses are
+  listed in `undeclared_but_expected` and are explicitly NOT presented as documented behaviour.
+format: fastapi-validation
+rfc9457: false
+media_type: application/json
+envelope:
+  schema: HTTPValidationError
+  fields:
+  - name: detail
+    type: array
+    items: ValidationError
+  item_fields:
+  - name: loc
+    type: array of string|integer
+    description: JSON path to the offending field in the request
+  - name: msg
+    type: string
+    description: Human-readable message
+  - name: type
+    type: string
+    description: Machine-readable error type token
+problem_types:
+- status: 422
+  title: Validation Error
+  schema: HTTPValidationError
+  declared_on:
+  - list_workflows
+  - create_workflow
+  - get_workflow
+  - stop_workflow
+  - get_workflow_results_numeric
+  - download_results
+  - list_files
+  - create_file
+  - create_file_batch
+  - get_file
+  - update_file
+  - delete_file
+  - download_file
+  description: >-
+    Request failed schema validation. `detail[].loc` locates the field, `detail[].msg` explains, and
+    `detail[].type` is the machine-readable token.
+  remediation: >-
+    Read detail[].loc to find the offending field and correct it before retrying. Common causes visible in the
+    contract: omitting the REQUIRED `kind` query parameter on list_workflows; omitting the REQUIRED X-API-KEY
+    header; a `kind` value outside the UnifiedWorkflowKind enum; a `resources.gpu_type` value outside
+    [a100, v100]; a malformed uuid4 in a path parameter.
+  retryable: false
+undeclared_but_expected:
+  note: >-
+    NOT documented by QC Ware. Listed so an integrator knows the contract is incomplete, not as an assertion
+    about response shapes. Do not code against these envelopes.
+  statuses:
+  - status: 401
+    reason: missing or invalid X-API-KEY — the header is required on every operation but no 401 is declared
+  - status: 403
+    reason: key valid but not entitled to the resource
+  - status: 404
+    reason: unknown workflow_id or file_id — every path-parameter operation can produce it, none declares it
+  - status: 429
+    reason: no rate limits or throttling responses are published at all (rate-limits/qc-ware-rate-limits.yml)
+  - status: '5xx'
+    reason: no server-error responses declared on any operation
+counts:
+  declared_error_responses: 1
+  operations_covered: 13
+  distinct_status_codes: 1
+  rfc9457_compliant: 0

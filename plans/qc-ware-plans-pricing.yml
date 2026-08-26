@@ -1,0 +1,73 @@
+generated: '2026-08-26'
+method: searched
+source: https://www.promethium.qcware.com/pricing-details
+also_source: https://www.promethium.qcware.com/pricing
+note: >-
+  Promethium is priced by GPU compute hour, billed by the second for actively running tasks, with no charge for
+  time spent in the web interface outside task execution. Tasks running in parallel each accrue compute time
+  separately. The API itself carries no separate fee — QC Ware's 2023-11-27 launch post states API access is
+  "available to all new and existing customers at no additional cost". The /pricing page carries an explicit
+  legacy notice: "This pricing applies only to legacy agreements that specifically refer to this pricing page.
+  Please contact us regarding current pricing." Both pages are recorded; the /pricing-details tiers are the
+  current published set.
+currency: USD
+billing_unit: GPU compute hour (metered per second)
+plans:
+- name: Pay-As-You-Go
+  price: 24.00
+  list_price: 30.00
+  currency: USD
+  unit: per compute hour
+  period: invoiced monthly
+  term: none
+  note: >-
+    $24/hr published as an introductory rate against a $30/hr standard rate. Billed by the second.
+  included: >-
+    Ab initio calculations on systems up to ~2,000 atoms; cloud compute on AWS; web GUI; elements hydrogen
+    through radon, metals, ions, high angular momentum orbitals, solvents; workflow set (Conformer Search,
+    Interaction Energy, Torsion Scan, Reaction Path Optimization, Transition State Optimization, Geometry
+    Optimization).
+  overage: not applicable (usage-metered, no bundled quota)
+- name: Academic
+  price: 20.00
+  currency: USD
+  unit: per compute hour
+  period: invoiced monthly
+  term: none
+  note: 33% discount against the $30/hr standard rate. Billed by the second.
+  eligibility: academic institutions
+- name: Volume
+  price: null
+  currency: USD
+  unit: per compute hour
+  period: invoiced upfront
+  term: 12-month expiry on purchased hours
+  note: >-
+    Discounted volume rate; the specific rate is not published — contact sales. Recorded as null rather than
+    guessed.
+legacy_rate_card:
+  source: https://www.promethium.qcware.com/pricing
+  applies_to: legacy agreements that specifically reference that page
+  rates:
+  - workflow: QC Score
+    compute: Standard (A100)
+    price: 100.00
+    unit: per compute hour
+  - workflow: QC Score
+    compute: Basic (V100)
+    price: 18.00
+    unit: per compute hour
+  - workflow: all other workflows / tasks
+    compute: Standard (A100)
+    price: 30.00
+    unit: per compute hour
+api_pricing:
+  separate_charge: false
+  source: https://www.promethium.qcware.com/post/november-product-updates-promethiums-api-is-now-live
+  statement: "API access for Promethium is now available to all new and existing customers at no additional cost."
+free_tier: false
+self_serve_signup: false
+signup_note: >-
+  The console at app.promethium.qcware.com is an Auth0-gated application; no public self-serve signup or free
+  trial tier is published on the pricing pages.
+plan_count: 3
