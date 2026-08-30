@@ -1,0 +1,457 @@
+openapi: 3.2.0
+info:
+  title: Promethium REST Files API
+  version: 0.1.0
+servers:
+- url: https://api.promethium.qcware.com
+tags:
+- name: Files
+paths:
+  /v0/files/{file_id}:
+    get:
+      tags:
+      - Files
+      summary: Get File
+      description: Get the data for the file/folder with the given id
+      operationId: get_file
+      parameters:
+      - required: true
+        schema:
+          title: File Id
+          type: string
+          format: uuid4
+        name: file_id
+        in: path
+      - description: Authorization token for the request.
+        required: true
+        schema:
+          title: X-API-KEY
+          pattern: ^[a-zA-Z0-9\-_]{2,256}$
+          type: string
+          description: Authorization token for the request.
+        name: X-API-KEY
+        in: header
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileMetadata'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - Files
+      summary: Delete File
+      description: Deletes an existing file or directory and its contents.
+      operationId: delete_file
+      parameters:
+      - required: true
+        schema:
+          title: File Id
+          type: string
+          format: uuid4
+        name: file_id
+        in: path
+      - description: Authorization token for the request.
+        required: true
+        schema:
+          title: X-API-KEY
+          pattern: ^[a-zA-Z0-9\-_]{2,256}$
+          type: string
+          description: Authorization token for the request.
+        name: X-API-KEY
+        in: header
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    patch:
+      tags:
+      - Files
+      summary: Update File
+      description: Partially update the file/directory, effectively moving it from one parent to another.
+      operationId: update_file
+      parameters:
+      - required: true
+        schema:
+          title: File Id
+          type: string
+          format: uuid4
+        name: file_id
+        in: path
+      - description: Authorization token for the request.
+        required: true
+        schema:
+          title: X-API-KEY
+          pattern: ^[a-zA-Z0-9\-_]{2,256}$
+          type: string
+          description: Authorization token for the request.
+        name: X-API-KEY
+        in: header
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateFileRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileMetadata'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v0/files:
+    get:
+      tags:
+      - Files
+      summary: List Files
+      description: List the metadata for the files that match the query filters
+      operationId: list_files
+      parameters:
+      - description: If specified, only files directly under the parent directories are retrieved. Otherwise, all files in the file system.
+        required: false
+        schema:
+          title: Parent Id
+          type: string
+          description: If specified, only files directly under the parent directories are retrieved. Otherwise, all files in the file system.
+          format: uuid4
+        name: parent_id
+        in: query
+      - description: If specified, the results are filtered to all files containing the given search string.
+        required: false
+        schema:
+          title: Search
+          type: string
+          description: If specified, the results are filtered to all files containing the given search string.
+        name: search
+        in: query
+      - required: false
+        schema:
+          title: Page
+          minimum: 1.0
+          type: integer
+          default: 1
+        name: page
+        in: query
+      - required: false
+        schema:
+          title: Size
+          maximum: 1000.0
+          minimum: 1.0
+          type: integer
+          default: 100
+        name: size
+        in: query
+      - description: Authorization token for the request.
+        required: true
+        schema:
+          title: X-API-KEY
+          pattern: ^[a-zA-Z0-9\-_]{2,256}$
+          type: string
+          description: Authorization token for the request.
+        name: X-API-KEY
+        in: header
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Page_FileMetadata_'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - Files
+      summary: Create File
+      description: Creates a new file or directory
+      operationId: create_file
+      parameters:
+      - description: Authorization token for the request.
+        required: true
+        schema:
+          title: X-API-KEY
+          pattern: ^[a-zA-Z0-9\-_]{2,256}$
+          type: string
+          description: Authorization token for the request.
+        name: X-API-KEY
+        in: header
+      requestBody:
+        content:
+          application/json:
+            schema:
+              title: Request Input
+              anyOf:
+              - $ref: '#/components/schemas/CreateSimpleFileRequest'
+              - $ref: '#/components/schemas/CreateDirectoryRequest'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileMetadata'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v0/files/{file_id}/download:
+    get:
+      tags:
+      - Files
+      summary: Download File
+      description: Redirects to an ephemeral, secured download URL. For directories, this will create a zip file of the directory contents.
+      operationId: download_file
+      parameters:
+      - required: true
+        schema:
+          title: File Id
+          type: string
+          format: uuid4
+        name: file_id
+        in: path
+      - description: Authorization token for the request.
+        required: true
+        schema:
+          title: X-API-KEY
+          pattern: ^[a-zA-Z0-9\-_]{2,256}$
+          type: string
+          description: Authorization token for the request.
+        name: X-API-KEY
+        in: header
+      responses:
+        '302':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v0/files/batch:
+    post:
+      tags:
+      - Files
+      summary: Create File Batch
+      description: Creates a batch of new files and/or directories
+      operationId: create_file_batch
+      parameters:
+      - description: Authorization token for the request.
+        required: true
+        schema:
+          title: X-API-KEY
+          pattern: ^[a-zA-Z0-9\-_]{2,256}$
+          type: string
+          description: Authorization token for the request.
+        name: X-API-KEY
+        in: header
+      requestBody:
+        content:
+          application/json:
+            schema:
+              title: Request Input
+              type: array
+              items:
+                anyOf:
+                - $ref: '#/components/schemas/CreateSimpleFileRequest'
+                - $ref: '#/components/schemas/CreateDirectoryRequest'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                title: Response Create File Batch
+                type: array
+                items:
+                  $ref: '#/components/schemas/FileMetadata'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    ValidationError:
+      title: ValidationError
+      required:
+      - loc
+      - msg
+      - type
+      type: object
+      properties:
+        loc:
+          title: Location
+          type: array
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+        msg:
+          title: Message
+          type: string
+        type:
+          title: Error Type
+          type: string
+    UpdateFileRequest:
+      title: UpdateFileRequest
+      type: object
+      properties:
+        parent_id:
+          title: Parent Id
+          type: string
+          description: The id of the parent directory; optional only for the root
+          format: uuid4
+    FileMetadata:
+      title: FileMetadata
+      required:
+      - id
+      - name
+      - is_directory
+      - created_at
+      type: object
+      properties:
+        id:
+          title: Id
+          type: string
+          description: The unique id of the file
+          format: uuid4
+        name:
+          title: Name
+          type: string
+          description: The name of the file
+        parent_id:
+          title: Parent Id
+          type: string
+          description: The id of the parent directory; optional only for the root
+          format: uuid4
+        is_directory:
+          title: Is Directory
+          type: boolean
+          description: True if this is a directory, false otherwise
+        created_at:
+          title: Created At
+          type: string
+          description: The creation date of the file
+          format: date-time
+        size_bytes_uncompressed:
+          title: Size Bytes Uncompressed
+          type: integer
+          description: The length of the file
+          default: 0
+        sha256_uncompressed:
+          title: Sha256 Uncompressed
+          type: string
+          description: The SHA256 hash of the file contents
+    Page_FileMetadata_:
+      title: Page[FileMetadata]
+      required:
+      - items
+      - total
+      - page
+      - size
+      type: object
+      properties:
+        items:
+          title: Items
+          type: array
+          items:
+            $ref: '#/components/schemas/FileMetadata'
+        total:
+          title: Total
+          minimum: 0.0
+          type: integer
+        page:
+          title: Page
+          minimum: 1.0
+          type: integer
+        size:
+          title: Size
+          minimum: 1.0
+          type: integer
+    HTTPValidationError:
+      title: HTTPValidationError
+      type: object
+      properties:
+        detail:
+          title: Detail
+          type: array
+          items:
+            $ref: '#/components/schemas/ValidationError'
+    CreateDirectoryRequest:
+      title: CreateDirectoryRequest
+      required:
+      - name
+      type: object
+      properties:
+        name:
+          title: Name
+          type: string
+          description: The name of the file
+        parent_id:
+          title: Parent Id
+          type: string
+          description: The id of the parent directory; optional only for the root
+          format: uuid4
+        is_directory:
+          title: Is Directory
+          enum:
+          - true
+          type: boolean
+          default: true
+    CreateSimpleFileRequest:
+      title: CreateSimpleFileRequest
+      required:
+      - name
+      - base64body
+      type: object
+      properties:
+        name:
+          title: Name
+          type: string
+          description: The name of the file
+        parent_id:
+          title: Parent Id
+          type: string
+          description: The id of the parent directory; optional only for the root
+          format: uuid4
+        is_directory:
+          title: Is Directory
+          enum:
+          - false
+          type: boolean
+          default: false
+        base64body:
+          title: Base64Body
+          type: string
+          description: Contents of the file as a base64 string

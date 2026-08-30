@@ -1,0 +1,552 @@
+openapi: 3.2.0
+info:
+  title: Promethium REST Workflows API
+  version: 0.1.0
+servers:
+- url: https://api.promethium.qcware.com
+tags:
+- name: Workflows
+paths:
+  /v0/workflows:
+    get:
+      tags:
+      - Workflows
+      summary: List Workflows
+      description: Gets a list of workflows that match the query filters in the given order
+      operationId: list_workflows
+      parameters:
+      - description: The type of workflow; can be one of ['TorsionScan', 'ConformerSearch', 'SinglePointCalculation', 'GeometryOptimization', 'InteractionEnergyCalculation', 'ReactionPathOptimization', 'TransitionStateOptimization', 'TransitionStateOptimizationFromEndpoints']
+        required: true
+        schema:
+          allOf:
+          - $ref: '#/components/schemas/UnifiedWorkflowKind'
+          description: The type of workflow; can be one of ['TorsionScan', 'ConformerSearch', 'SinglePointCalculation', 'GeometryOptimization', 'InteractionEnergyCalculation', 'ReactionPathOptimization', 'TransitionStateOptimization', 'TransitionStateOptimizationFromEndpoints']
+        name: kind
+        in: query
+      - required: false
+        schema:
+          title: Search
+          type: string
+        name: search
+        in: query
+      - required: false
+        schema:
+          title: User Id
+          type: string
+        name: user_id
+        in: query
+      - description: The status of the workflow; can be one of ['SUBMITTED', 'PENDING', 'RUNNABLE', 'STARTING', 'SUCCEEDED', 'CANCELED', 'COMPLETED', 'FAILED', 'RUNNING', 'TERMINATED', 'TIMED_OUT']
+        required: false
+        schema:
+          allOf:
+          - $ref: '#/components/schemas/UnifiedWorkflowStatus'
+          description: The status of the workflow; can be one of ['SUBMITTED', 'PENDING', 'RUNNABLE', 'STARTING', 'SUCCEEDED', 'CANCELED', 'COMPLETED', 'FAILED', 'RUNNING', 'TERMINATED', 'TIMED_OUT']
+        name: status
+        in: query
+      - required: false
+        schema:
+          title: Started Before
+          type: string
+          format: date-time
+        name: started_before
+        in: query
+      - required: false
+        schema:
+          title: Started After
+          type: string
+          format: date-time
+        name: started_after
+        in: query
+      - required: false
+        schema:
+          title: Stopped Before
+          type: string
+          format: date-time
+        name: stopped_before
+        in: query
+      - required: false
+        schema:
+          title: Stopped After
+          type: string
+          format: date-time
+        name: stopped_after
+        in: query
+      - description: The workflow field to order by. Can be one of ['id', 'name', 'kind', 'created_at', 'last_updated_at', 'started_at', 'stopped_at', 'status', 'status_reason']. The default is started_at.
+        required: false
+        schema:
+          allOf:
+          - $ref: '#/components/schemas/WorkflowOrderField'
+          description: The workflow field to order by. Can be one of ['id', 'name', 'kind', 'created_at', 'last_updated_at', 'started_at', 'stopped_at', 'status', 'status_reason']. The default is started_at.
+          default: started_at
+        name: order_by
+        in: query
+      - description: Can be one of asc and desc.
+        required: false
+        schema:
+          allOf:
+          - $ref: '#/components/schemas/OrderDir'
+          description: Can be one of asc and desc.
+          default: desc
+        name: order_dir
+        in: query
+      - required: false
+        schema:
+          title: Page
+          minimum: 1.0
+          type: integer
+          default: 1
+        name: page
+        in: query
+      - required: false
+        schema:
+          title: Size
+          maximum: 1000.0
+          minimum: 1.0
+          type: integer
+          default: 100
+        name: size
+        in: query
+      - description: Authorization token for the request.
+        required: true
+        schema:
+          title: X-API-KEY
+          pattern: ^[a-zA-Z0-9\-_]{2,256}$
+          type: string
+          description: Authorization token for the request.
+        name: X-API-KEY
+        in: header
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Page_Workflow_'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - Workflows
+      summary: Create Workflow
+      description: Create a new workflow
+      operationId: create_workflow
+      parameters:
+      - description: Authorization token for the request.
+        required: true
+        schema:
+          title: X-API-KEY
+          pattern: ^[a-zA-Z0-9\-_]{2,256}$
+          type: string
+          description: Authorization token for the request.
+        name: X-API-KEY
+        in: header
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateWorkflowRequest'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workflow'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v0/workflows/{workflow_id}:
+    get:
+      tags:
+      - Workflows
+      summary: Get Workflow
+      description: Gets the workflow with the given id
+      operationId: get_workflow
+      parameters:
+      - required: true
+        schema:
+          title: Workflow Id
+          type: string
+          format: uuid4
+        name: workflow_id
+        in: path
+      - description: Authorization token for the request.
+        required: true
+        schema:
+          title: X-API-KEY
+          pattern: ^[a-zA-Z0-9\-_]{2,256}$
+          type: string
+          description: Authorization token for the request.
+        name: X-API-KEY
+        in: header
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workflow'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v0/workflows/{workflow_id}/stop:
+    post:
+      tags:
+      - Workflows
+      summary: Stop Workflow
+      description: Stops the workflow with the given id.
+      operationId: stop_workflow
+      parameters:
+      - required: true
+        schema:
+          title: Workflow Id
+          type: string
+          format: uuid4
+        name: workflow_id
+        in: path
+      - description: Authorization token for the request.
+        required: true
+        schema:
+          title: X-API-KEY
+          pattern: ^[a-zA-Z0-9\-_]{2,256}$
+          type: string
+          description: Authorization token for the request.
+        name: X-API-KEY
+        in: header
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v0/workflows/{workflow_id}/results:
+    get:
+      tags:
+      - Workflows
+      summary: Get Workflow Results Numeric
+      operationId: get_workflow_results_numeric
+      parameters:
+      - required: true
+        schema:
+          title: Workflow Id
+          type: string
+          format: uuid4
+        name: workflow_id
+        in: path
+      - description: Authorization token for the request.
+        required: true
+        schema:
+          title: X-API-KEY
+          pattern: ^[a-zA-Z0-9\-_]{2,256}$
+          type: string
+          description: Authorization token for the request.
+        name: X-API-KEY
+        in: header
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowNumericResults'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v0/workflows/{workflow_id}/results/download:
+    get:
+      tags:
+      - Workflows
+      summary: Download Results
+      description: Redirects to an ephemeral, secured download URL with a zip file containing the workflow results.
+      operationId: download_results
+      parameters:
+      - required: true
+        schema:
+          title: Workflow Id
+          type: string
+          format: uuid4
+        name: workflow_id
+        in: path
+      - description: Authorization token for the request.
+        required: true
+        schema:
+          title: X-API-KEY
+          pattern: ^[a-zA-Z0-9\-_]{2,256}$
+          type: string
+          description: Authorization token for the request.
+        name: X-API-KEY
+        in: header
+      responses:
+        '302':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    ValidationError:
+      title: ValidationError
+      required:
+      - loc
+      - msg
+      - type
+      type: object
+      properties:
+        loc:
+          title: Location
+          type: array
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+        msg:
+          title: Message
+          type: string
+        type:
+          title: Error Type
+          type: string
+    Workflow:
+      title: Workflow
+      required:
+      - id
+      - name
+      - kind
+      - created_at
+      - last_updated_at
+      - status
+      - status_reason
+      - resources
+      type: object
+      properties:
+        version:
+          title: Version
+          enum:
+          - v1
+          type: string
+          default: v1
+        id:
+          title: Id
+          type: string
+          description: The unique id of the workflow
+          format: uuid4
+        name:
+          title: Name
+          type: string
+          description: The user-defined name of the workflow
+        kind:
+          allOf:
+          - $ref: '#/components/schemas/UnifiedWorkflowKind'
+          description: The type of workflow; can be one of ['TorsionScan', 'ConformerSearch', 'SinglePointCalculation', 'GeometryOptimization', 'InteractionEnergyCalculation', 'ReactionPathOptimization', 'TransitionStateOptimization', 'TransitionStateOptimizationFromEndpoints']
+        created_at:
+          title: Created At
+          type: string
+          description: The creation date of the workflow
+          format: date-time
+        last_updated_at:
+          title: Last Updated At
+          type: string
+          description: The last update date of the workflow
+          format: date-time
+        started_at:
+          title: Started At
+          type: string
+          description: The date when the workflow started
+          format: date-time
+        stopped_at:
+          title: Stopped At
+          type: string
+          description: The date when the workflow stopped
+          format: date-time
+        status:
+          allOf:
+          - $ref: '#/components/schemas/UnifiedWorkflowStatus'
+          description: The status of the workflow; can be one of ['SUBMITTED', 'PENDING', 'RUNNABLE', 'STARTING', 'SUCCEEDED', 'CANCELED', 'COMPLETED', 'FAILED', 'RUNNING', 'TERMINATED', 'TIMED_OUT']
+        status_reason:
+          title: Status Reason
+          type: string
+          description: Indicates what changed the workflow to the current state
+        parameters:
+          title: Parameters
+          type: object
+        resources:
+          $ref: '#/components/schemas/ResourceRequest'
+    OrderDir:
+      title: OrderDir
+      enum:
+      - asc
+      - desc
+      type: string
+      description: An enumeration.
+    CreateWorkflowRequest:
+      title: CreateWorkflowRequest
+      required:
+      - name
+      - kind
+      - parameters
+      - resources
+      type: object
+      properties:
+        version:
+          title: Version
+          enum:
+          - v1
+          type: string
+          default: v1
+        name:
+          title: Name
+          type: string
+          description: The user-defined name of the workflow
+        kind:
+          allOf:
+          - $ref: '#/components/schemas/UnifiedWorkflowKind'
+          description: The type of workflow; can be one of ['TorsionScan', 'ConformerSearch', 'SinglePointCalculation', 'GeometryOptimization', 'InteractionEnergyCalculation', 'ReactionPathOptimization', 'TransitionStateOptimization', 'TransitionStateOptimizationFromEndpoints']
+        parameters:
+          title: Parameters
+          type: object
+        resources:
+          $ref: '#/components/schemas/ResourceRequest'
+    WorkflowOrderField:
+      title: WorkflowOrderField
+      enum:
+      - id
+      - name
+      - kind
+      - created_at
+      - last_updated_at
+      - started_at
+      - stopped_at
+      - status
+      - status_reason
+      type: string
+      description: An enumeration.
+    ResourceRequest:
+      title: ResourceRequest
+      required:
+      - gpu_type
+      type: object
+      properties:
+        gpu_type:
+          allOf:
+          - $ref: '#/components/schemas/GpuType'
+          description: The class of GPU used to run the workflow; can be one of ['a100', 'v100']
+        gpu_count:
+          title: Gpu Count
+          type: integer
+          description: The number of GPU units used to run the workflow
+          default: 1
+    UnifiedWorkflowKind:
+      title: UnifiedWorkflowKind
+      enum:
+      - TorsionScan
+      - ConformerSearch
+      - SinglePointCalculation
+      - GeometryOptimization
+      - InteractionEnergyCalculation
+      - ReactionPathOptimization
+      - TransitionStateOptimization
+      - TransitionStateOptimizationFromEndpoints
+      type: string
+      description: An enumeration.
+    UnifiedWorkflowStatus:
+      title: UnifiedWorkflowStatus
+      enum:
+      - SUBMITTED
+      - PENDING
+      - RUNNABLE
+      - STARTING
+      - SUCCEEDED
+      - CANCELED
+      - COMPLETED
+      - FAILED
+      - RUNNING
+      - TERMINATED
+      - TIMED_OUT
+      type: string
+      description: Combination of job and workflow statuses that can be exposed to users.
+    HTTPValidationError:
+      title: HTTPValidationError
+      type: object
+      properties:
+        detail:
+          title: Detail
+          type: array
+          items:
+            $ref: '#/components/schemas/ValidationError'
+    WorkflowNumericResults:
+      title: WorkflowNumericResults
+      required:
+      - id
+      - kind
+      - api_version
+      - results
+      type: object
+      properties:
+        id:
+          title: Id
+          type: string
+          format: uuid4
+        kind:
+          title: Kind
+          type: string
+        api_version:
+          title: Api Version
+          type: string
+        results:
+          title: Results
+          type: object
+    GpuType:
+      title: GpuType
+      enum:
+      - a100
+      - v100
+      type: string
+      description: The classes of computing units supported in Promethium
+    Page_Workflow_:
+      title: Page[Workflow]
+      required:
+      - items
+      - total
+      - page
+      - size
+      type: object
+      properties:
+        items:
+          title: Items
+          type: array
+          items:
+            $ref: '#/components/schemas/Workflow'
+        total:
+          title: Total
+          minimum: 0.0
+          type: integer
+        page:
+          title: Page
+          minimum: 1.0
+          type: integer
+        size:
+          title: Size
+          minimum: 1.0
+          type: integer
