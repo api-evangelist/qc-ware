@@ -1,0 +1,14 @@
+{
+  "repo": "qc-ware",
+  "feeds": [
+    {
+      "source": "https://github.com/qcware",
+      "feed_url": "https://github.com/qcware",
+      "title": "",
+      "saved": 0,
+      "method": "none"
+    }
+  ],
+  "post_count": 0,
+  "fetched": "2026-08-30T22:33:40Z"
+}

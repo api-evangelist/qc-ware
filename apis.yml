@@ -45,6 +45,8 @@ apis:
   humanURL: https://app.promethium.qcware.com/docs/api
   baseURL: https://api.promethium.qcware.com
   tags:
+  - File
+  tags_raw:
   - Files
   properties:
   - type: OpenAPI
