@@ -328,6 +328,63 @@ components:
         type:
           title: Error Type
           type: string
+    OrderDir:
+      title: OrderDir
+      enum:
+      - asc
+      - desc
+      type: string
+      description: An enumeration.
+    WorkflowNumericResults:
+      title: WorkflowNumericResults
+      required:
+      - id
+      - kind
+      - api_version
+      - results
+      type: object
+      properties:
+        id:
+          title: Id
+          type: string
+          format: uuid4
+        kind:
+          title: Kind
+          type: string
+        api_version:
+          title: Api Version
+          type: string
+        results:
+          title: Results
+          type: object
+    ResourceRequest:
+      title: ResourceRequest
+      required:
+      - gpu_type
+      type: object
+      properties:
+        gpu_type:
+          allOf:
+          - $ref: '#/components/schemas/GpuType'
+          description: The class of GPU used to run the workflow; can be one of ['a100', 'v100']
+        gpu_count:
+          title: Gpu Count
+          type: integer
+          description: The number of GPU units used to run the workflow
+          default: 1
+    UnifiedWorkflowKind:
+      title: UnifiedWorkflowKind
+      enum:
+      - TorsionScan
+      - ConformerSearch
+      - SinglePointCalculation
+      - GeometryOptimization
+      - InteractionEnergyCalculation
+      - ReactionPathOptimization
+      - TransitionStateOptimization
+      - TransitionStateOptimizationFromEndpoints
+      type: string
+      description: An enumeration.
     Workflow:
       title: Workflow
       required:
@@ -393,13 +450,78 @@ components:
           type: object
         resources:
           $ref: '#/components/schemas/ResourceRequest'
-    OrderDir:
-      title: OrderDir
+    UnifiedWorkflowStatus:
+      title: UnifiedWorkflowStatus
       enum:
-      - asc
-      - desc
+      - SUBMITTED
+      - PENDING
+      - RUNNABLE
+      - STARTING
+      - SUCCEEDED
+      - CANCELED
+      - COMPLETED
+      - FAILED
+      - RUNNING
+      - TERMINATED
+      - TIMED_OUT
+      type: string
+      description: Combination of job and workflow statuses that can be exposed to users.
+    Page_Workflow_:
+      title: Page[Workflow]
+      required:
+      - items
+      - total
+      - page
+      - size
+      type: object
+      properties:
+        items:
+          title: Items
+          type: array
+          items:
+            $ref: '#/components/schemas/Workflow'
+        total:
+          title: Total
+          minimum: 0.0
+          type: integer
+        page:
+          title: Page
+          minimum: 1.0
+          type: integer
+        size:
+          title: Size
+          minimum: 1.0
+          type: integer
+    WorkflowOrderField:
+      title: WorkflowOrderField
+      enum:
+      - id
+      - name
+      - kind
+      - created_at
+      - last_updated_at
+      - started_at
+      - stopped_at
+      - status
+      - status_reason
       type: string
       description: An enumeration.
+    HTTPValidationError:
+      title: HTTPValidationError
+      type: object
+      properties:
+        detail:
+          title: Detail
+          type: array
+          items:
+            $ref: '#/components/schemas/ValidationError'
+    GpuType:
+      title: GpuType
+      enum:
+      - a100
+      - v100
+      type: string
+      description: The classes of computing units supported in Promethium
     CreateWorkflowRequest:
       title: CreateWorkflowRequest
       required:
@@ -428,125 +550,3 @@ components:
           type: object
         resources:
           $ref: '#/components/schemas/ResourceRequest'
-    WorkflowOrderField:
-      title: WorkflowOrderField
-      enum:
-      - id
-      - name
-      - kind
-      - created_at
-      - last_updated_at
-      - started_at
-      - stopped_at
-      - status
-      - status_reason
-      type: string
-      description: An enumeration.
-    ResourceRequest:
-      title: ResourceRequest
-      required:
-      - gpu_type
-      type: object
-      properties:
-        gpu_type:
-          allOf:
-          - $ref: '#/components/schemas/GpuType'
-          description: The class of GPU used to run the workflow; can be one of ['a100', 'v100']
-        gpu_count:
-          title: Gpu Count
-          type: integer
-          description: The number of GPU units used to run the workflow
-          default: 1
-    UnifiedWorkflowKind:
-      title: UnifiedWorkflowKind
-      enum:
-      - TorsionScan
-      - ConformerSearch
-      - SinglePointCalculation
-      - GeometryOptimization
-      - InteractionEnergyCalculation
-      - ReactionPathOptimization
-      - TransitionStateOptimization
-      - TransitionStateOptimizationFromEndpoints
-      type: string
-      description: An enumeration.
-    UnifiedWorkflowStatus:
-      title: UnifiedWorkflowStatus
-      enum:
-      - SUBMITTED
-      - PENDING
-      - RUNNABLE
-      - STARTING
-      - SUCCEEDED
-      - CANCELED
-      - COMPLETED
-      - FAILED
-      - RUNNING
-      - TERMINATED
-      - TIMED_OUT
-      type: string
-      description: Combination of job and workflow statuses that can be exposed to users.
-    HTTPValidationError:
-      title: HTTPValidationError
-      type: object
-      properties:
-        detail:
-          title: Detail
-          type: array
-          items:
-            $ref: '#/components/schemas/ValidationError'
-    WorkflowNumericResults:
-      title: WorkflowNumericResults
-      required:
-      - id
-      - kind
-      - api_version
-      - results
-      type: object
-      properties:
-        id:
-          title: Id
-          type: string
-          format: uuid4
-        kind:
-          title: Kind
-          type: string
-        api_version:
-          title: Api Version
-          type: string
-        results:
-          title: Results
-          type: object
-    GpuType:
-      title: GpuType
-      enum:
-      - a100
-      - v100
-      type: string
-      description: The classes of computing units supported in Promethium
-    Page_Workflow_:
-      title: Page[Workflow]
-      required:
-      - items
-      - total
-      - page
-      - size
-      type: object
-      properties:
-        items:
-          title: Items
-          type: array
-          items:
-            $ref: '#/components/schemas/Workflow'
-        total:
-          title: Total
-          minimum: 0.0
-          type: integer
-        page:
-          title: Page
-          minimum: 1.0
-          type: integer
-        size:
-          title: Size
-          minimum: 1.0
-          type: integer

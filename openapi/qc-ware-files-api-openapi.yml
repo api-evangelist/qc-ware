@@ -323,15 +323,88 @@ components:
         type:
           title: Error Type
           type: string
-    UpdateFileRequest:
-      title: UpdateFileRequest
+    CreateSimpleFileRequest:
+      title: CreateSimpleFileRequest
+      required:
+      - name
+      - base64body
       type: object
       properties:
+        name:
+          title: Name
+          type: string
+          description: The name of the file
         parent_id:
           title: Parent Id
           type: string
           description: The id of the parent directory; optional only for the root
           format: uuid4
+        is_directory:
+          title: Is Directory
+          enum:
+          - false
+          type: boolean
+          default: false
+        base64body:
+          title: Base64Body
+          type: string
+          description: Contents of the file as a base64 string
+    HTTPValidationError:
+      title: HTTPValidationError
+      type: object
+      properties:
+        detail:
+          title: Detail
+          type: array
+          items:
+            $ref: '#/components/schemas/ValidationError'
+    CreateDirectoryRequest:
+      title: CreateDirectoryRequest
+      required:
+      - name
+      type: object
+      properties:
+        name:
+          title: Name
+          type: string
+          description: The name of the file
+        parent_id:
+          title: Parent Id
+          type: string
+          description: The id of the parent directory; optional only for the root
+          format: uuid4
+        is_directory:
+          title: Is Directory
+          enum:
+          - true
+          type: boolean
+          default: true
+    Page_FileMetadata_:
+      title: Page[FileMetadata]
+      required:
+      - items
+      - total
+      - page
+      - size
+      type: object
+      properties:
+        items:
+          title: Items
+          type: array
+          items:
+            $ref: '#/components/schemas/FileMetadata'
+        total:
+          title: Total
+          minimum: 0.0
+          type: integer
+        page:
+          title: Page
+          minimum: 1.0
+          type: integer
+        size:
+          title: Size
+          minimum: 1.0
+          type: integer
     FileMetadata:
       title: FileMetadata
       required:
@@ -373,85 +446,12 @@ components:
           title: Sha256 Uncompressed
           type: string
           description: The SHA256 hash of the file contents
-    Page_FileMetadata_:
-      title: Page[FileMetadata]
-      required:
-      - items
-      - total
-      - page
-      - size
+    UpdateFileRequest:
+      title: UpdateFileRequest
       type: object
       properties:
-        items:
-          title: Items
-          type: array
-          items:
-            $ref: '#/components/schemas/FileMetadata'
-        total:
-          title: Total
-          minimum: 0.0
-          type: integer
-        page:
-          title: Page
-          minimum: 1.0
-          type: integer
-        size:
-          title: Size
-          minimum: 1.0
-          type: integer
-    HTTPValidationError:
-      title: HTTPValidationError
-      type: object
-      properties:
-        detail:
-          title: Detail
-          type: array
-          items:
-            $ref: '#/components/schemas/ValidationError'
-    CreateDirectoryRequest:
-      title: CreateDirectoryRequest
-      required:
-      - name
-      type: object
-      properties:
-        name:
-          title: Name
-          type: string
-          description: The name of the file
         parent_id:
           title: Parent Id
           type: string
           description: The id of the parent directory; optional only for the root
           format: uuid4
-        is_directory:
-          title: Is Directory
-          enum:
-          - true
-          type: boolean
-          default: true
-    CreateSimpleFileRequest:
-      title: CreateSimpleFileRequest
-      required:
-      - name
-      - base64body
-      type: object
-      properties:
-        name:
-          title: Name
-          type: string
-          description: The name of the file
-        parent_id:
-          title: Parent Id
-          type: string
-          description: The id of the parent directory; optional only for the root
-          format: uuid4
-        is_directory:
-          title: Is Directory
-          enum:
-          - false
-          type: boolean
-          default: false
-        base64body:
-          title: Base64Body
-          type: string
-          description: Contents of the file as a base64 string
