@@ -302,6 +302,15 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
+    HTTPValidationError:
+      title: HTTPValidationError
+      type: object
+      properties:
+        detail:
+          title: Detail
+          type: array
+          items:
+            $ref: '#/components/schemas/ValidationError'
     ValidationError:
       title: ValidationError
       required:
@@ -349,15 +358,47 @@ components:
           title: Base64Body
           type: string
           description: Contents of the file as a base64 string
-    HTTPValidationError:
-      title: HTTPValidationError
+    FileMetadata:
+      title: FileMetadata
+      required:
+      - id
+      - name
+      - is_directory
+      - created_at
       type: object
       properties:
-        detail:
-          title: Detail
-          type: array
-          items:
-            $ref: '#/components/schemas/ValidationError'
+        id:
+          title: Id
+          type: string
+          description: The unique id of the file
+          format: uuid4
+        name:
+          title: Name
+          type: string
+          description: The name of the file
+        parent_id:
+          title: Parent Id
+          type: string
+          description: The id of the parent directory; optional only for the root
+          format: uuid4
+        is_directory:
+          title: Is Directory
+          type: boolean
+          description: True if this is a directory, false otherwise
+        created_at:
+          title: Created At
+          type: string
+          description: The creation date of the file
+          format: date-time
+        size_bytes_uncompressed:
+          title: Size Bytes Uncompressed
+          type: integer
+          description: The length of the file
+          default: 0
+        sha256_uncompressed:
+          title: Sha256 Uncompressed
+          type: string
+          description: The SHA256 hash of the file contents
     CreateDirectoryRequest:
       title: CreateDirectoryRequest
       required:
@@ -405,47 +446,6 @@ components:
           title: Size
           minimum: 1.0
           type: integer
-    FileMetadata:
-      title: FileMetadata
-      required:
-      - id
-      - name
-      - is_directory
-      - created_at
-      type: object
-      properties:
-        id:
-          title: Id
-          type: string
-          description: The unique id of the file
-          format: uuid4
-        name:
-          title: Name
-          type: string
-          description: The name of the file
-        parent_id:
-          title: Parent Id
-          type: string
-          description: The id of the parent directory; optional only for the root
-          format: uuid4
-        is_directory:
-          title: Is Directory
-          type: boolean
-          description: True if this is a directory, false otherwise
-        created_at:
-          title: Created At
-          type: string
-          description: The creation date of the file
-          format: date-time
-        size_bytes_uncompressed:
-          title: Size Bytes Uncompressed
-          type: integer
-          description: The length of the file
-          default: 0
-        sha256_uncompressed:
-          title: Sha256 Uncompressed
-          type: string
-          description: The SHA256 hash of the file contents
     UpdateFileRequest:
       title: UpdateFileRequest
       type: object
