@@ -307,6 +307,20 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
+    WorkflowOrderField:
+      title: WorkflowOrderField
+      enum:
+      - id
+      - name
+      - kind
+      - created_at
+      - last_updated_at
+      - started_at
+      - stopped_at
+      - status
+      - status_reason
+      type: string
+      description: An enumeration.
     Workflow:
       title: Workflow
       required:
@@ -372,6 +386,27 @@ components:
           type: object
         resources:
           $ref: '#/components/schemas/ResourceRequest'
+    ValidationError:
+      title: ValidationError
+      required:
+      - loc
+      - msg
+      - type
+      type: object
+      properties:
+        loc:
+          title: Location
+          type: array
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+        msg:
+          title: Message
+          type: string
+        type:
+          title: Error Type
+          type: string
     WorkflowNumericResults:
       title: WorkflowNumericResults
       required:
@@ -394,47 +429,6 @@ components:
         results:
           title: Results
           type: object
-    UnifiedWorkflowKind:
-      title: UnifiedWorkflowKind
-      enum:
-      - TorsionScan
-      - ConformerSearch
-      - SinglePointCalculation
-      - GeometryOptimization
-      - InteractionEnergyCalculation
-      - ReactionPathOptimization
-      - TransitionStateOptimization
-      - TransitionStateOptimizationFromEndpoints
-      type: string
-      description: An enumeration.
-    ValidationError:
-      title: ValidationError
-      required:
-      - loc
-      - msg
-      - type
-      type: object
-      properties:
-        loc:
-          title: Location
-          type: array
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-        msg:
-          title: Message
-          type: string
-        type:
-          title: Error Type
-          type: string
-    GpuType:
-      title: GpuType
-      enum:
-      - a100
-      - v100
-      type: string
-      description: The classes of computing units supported in Promethium
     UnifiedWorkflowStatus:
       title: UnifiedWorkflowStatus
       enum:
@@ -477,6 +471,19 @@ components:
           title: Size
           minimum: 1.0
           type: integer
+    UnifiedWorkflowKind:
+      title: UnifiedWorkflowKind
+      enum:
+      - TorsionScan
+      - ConformerSearch
+      - SinglePointCalculation
+      - GeometryOptimization
+      - InteractionEnergyCalculation
+      - ReactionPathOptimization
+      - TransitionStateOptimization
+      - TransitionStateOptimizationFromEndpoints
+      type: string
+      description: An enumeration.
     CreateWorkflowRequest:
       title: CreateWorkflowRequest
       required:
@@ -505,20 +512,28 @@ components:
           type: object
         resources:
           $ref: '#/components/schemas/ResourceRequest'
-    WorkflowOrderField:
-      title: WorkflowOrderField
+    ResourceRequest:
+      title: ResourceRequest
+      required:
+      - gpu_type
+      type: object
+      properties:
+        gpu_type:
+          allOf:
+          - $ref: '#/components/schemas/GpuType'
+          description: The class of GPU used to run the workflow; can be one of ['a100', 'v100']
+        gpu_count:
+          title: Gpu Count
+          type: integer
+          description: The number of GPU units used to run the workflow
+          default: 1
+    GpuType:
+      title: GpuType
       enum:
-      - id
-      - name
-      - kind
-      - created_at
-      - last_updated_at
-      - started_at
-      - stopped_at
-      - status
-      - status_reason
+      - a100
+      - v100
       type: string
-      description: An enumeration.
+      description: The classes of computing units supported in Promethium
     OrderDir:
       title: OrderDir
       enum:
@@ -535,18 +550,3 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ValidationError'
-    ResourceRequest:
-      title: ResourceRequest
-      required:
-      - gpu_type
-      type: object
-      properties:
-        gpu_type:
-          allOf:
-          - $ref: '#/components/schemas/GpuType'
-          description: The class of GPU used to run the workflow; can be one of ['a100', 'v100']
-        gpu_count:
-          title: Gpu Count
-          type: integer
-          description: The number of GPU units used to run the workflow
-          default: 1

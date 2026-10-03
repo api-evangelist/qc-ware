@@ -302,15 +302,6 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    HTTPValidationError:
-      title: HTTPValidationError
-      type: object
-      properties:
-        detail:
-          title: Detail
-          type: array
-          items:
-            $ref: '#/components/schemas/ValidationError'
     ValidationError:
       title: ValidationError
       required:
@@ -332,11 +323,10 @@ components:
         type:
           title: Error Type
           type: string
-    CreateSimpleFileRequest:
-      title: CreateSimpleFileRequest
+    CreateDirectoryRequest:
+      title: CreateDirectoryRequest
       required:
       - name
-      - base64body
       type: object
       properties:
         name:
@@ -351,13 +341,9 @@ components:
         is_directory:
           title: Is Directory
           enum:
-          - false
+          - true
           type: boolean
-          default: false
-        base64body:
-          title: Base64Body
-          type: string
-          description: Contents of the file as a base64 string
+          default: true
     FileMetadata:
       title: FileMetadata
       required:
@@ -399,10 +385,20 @@ components:
           title: Sha256 Uncompressed
           type: string
           description: The SHA256 hash of the file contents
-    CreateDirectoryRequest:
-      title: CreateDirectoryRequest
+    UpdateFileRequest:
+      title: UpdateFileRequest
+      type: object
+      properties:
+        parent_id:
+          title: Parent Id
+          type: string
+          description: The id of the parent directory; optional only for the root
+          format: uuid4
+    CreateSimpleFileRequest:
+      title: CreateSimpleFileRequest
       required:
       - name
+      - base64body
       type: object
       properties:
         name:
@@ -417,9 +413,13 @@ components:
         is_directory:
           title: Is Directory
           enum:
-          - true
+          - false
           type: boolean
-          default: true
+          default: false
+        base64body:
+          title: Base64Body
+          type: string
+          description: Contents of the file as a base64 string
     Page_FileMetadata_:
       title: Page[FileMetadata]
       required:
@@ -446,12 +446,12 @@ components:
           title: Size
           minimum: 1.0
           type: integer
-    UpdateFileRequest:
-      title: UpdateFileRequest
+    HTTPValidationError:
+      title: HTTPValidationError
       type: object
       properties:
-        parent_id:
-          title: Parent Id
-          type: string
-          description: The id of the parent directory; optional only for the root
-          format: uuid4
+        detail:
+          title: Detail
+          type: array
+          items:
+            $ref: '#/components/schemas/ValidationError'
