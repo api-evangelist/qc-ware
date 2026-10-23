@@ -455,3 +455,9 @@ components:
           title: Base64Body
           type: string
           description: Contents of the file as a base64 string
+x-provenance:
+  method: harvested
+  publisher: QC Ware
+  source: https://app.promethium.qcware.com/openapi.json
+  note: split by refine-openapis from the provider's own published document, verified by fetch (openapi/_original/*.fetch.json);
+    stamped by stamp-openapi-provenance.py (roadmap#793)
